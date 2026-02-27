@@ -1,0 +1,1031 @@
+# =============================================================================
+# conditions.yaml — Full Condition Config for Triage System
+# =============================================================================
+# This file is the knowledge base for the entire triage system.
+# It is loaded by Python code and queried by agent tool functions.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Section 1: condition_groups
+# Groups for conditions that share keywords and need disambiguation.
+# -----------------------------------------------------------------------------
+condition_groups:
+  - group: "IUD"
+    keywords: ["spiral", "IUD", "kobberspiral", "hormonspiral", "copper IUD", "hormonal IUD"]
+    clarifying_question: "What do you need help with regarding your IUD (spiral)?"
+    options:
+      - label: "I need a new IUD inserted"
+        condition_id: 19
+      - label: "I need my IUD removed (strings are visible)"
+        condition_id: 20
+      - label: "I need my IUD replaced with a new one"
+        condition_id: 21
+      - label: "My IUD is over 8 years old or the strings cannot be found"
+        condition_id: 22
+      - label: "I need a hysteroscopic removal or insertion (no visible strings)"
+        condition_id: 23
+
+  - group: "Prolapse"
+    keywords: ["fremfald", "prolapse", "pessar", "ring", "cystocele", "rectocele"]
+    clarifying_question: "What do you need help with regarding prolapse?"
+    options:
+      - label: "I need a new assessment for prolapse"
+        condition_id: 34
+      - label: "I need a new prolapse ring fitted"
+        condition_id: 35
+      - label: "I need my prolapse ring changed or adjusted"
+        condition_id: 36
+
+  - group: "Polyp removal"
+    keywords: ["polyp", "polyp fjernelse", "polyp removal"]
+    clarifying_question: "Where is the polyp located?"
+    options:
+      - label: "Cervical polyp (on the cervix)"
+        condition_id: 43
+      - label: "Uterine polyp (inside the uterus)"
+        condition_id: 44
+
+  - group: "Lichen sclerosus"
+    keywords: ["lichen", "lichen sclerosus"]
+    clarifying_question: "What type of lichen sclerosus appointment do you need?"
+    options:
+      - label: "New assessment (first time)"
+        condition_id: 45
+      - label: "Follow-up — I still have symptoms"
+        condition_id: 46
+      - label: "Annual routine check"
+        condition_id: 47
+
+  - group: "Incontinence"
+    keywords: ["inkontinens", "incontinence", "urinlækage", "urine leakage"]
+    clarifying_question: "Is this a new referral or a follow-up?"
+    options:
+      - label: "New referral for incontinence"
+        condition_id: 31
+      - label: "Follow-up for incontinence"
+        condition_id: 32
+
+  - group: "PCOS"
+    keywords: ["PCOS", "polycystisk", "polycystic"]
+    clarifying_question: "Is this a new referral or a follow-up for PCOS?"
+    options:
+      - label: "New referral for PCOS"
+        condition_id: 39
+      - label: "Follow-up for PCOS"
+        condition_id: 40
+
+  - group: "Menopause"
+    keywords: ["overgangsalder", "menopause", "klimakterium"]
+    clarifying_question: "Is this a new referral or a follow-up for menopause?"
+    options:
+      - label: "New referral for menopause"
+        condition_id: 29
+      - label: "Follow-up for menopause"
+        condition_id: 30
+
+  - group: "Contraception"
+    keywords: ["prævention", "contraception", "p-stav", "implant"]
+    clarifying_question: "What do you need help with regarding contraception?"
+    options:
+      - label: "Contraception counselling"
+        condition_id: 24
+      - label: "Implant insertion (p-stav)"
+        condition_id: 25
+      - label: "Implant removal (p-stav)"
+        condition_id: 26
+
+  - group: "Cysts"
+    keywords: ["cyste", "cyst", "bartholin"]
+    clarifying_question: "What type of cyst are you being referred for?"
+    options:
+      - label: "Ovarian cyst (cyst on the ovary)"
+        condition_id: 27
+      - label: "Vulva or vaginal cyst (e.g. Bartholin's cyst)"
+        condition_id: 28
+
+# -----------------------------------------------------------------------------
+# Section 2: conditions (53 conditions)
+# -----------------------------------------------------------------------------
+conditions:
+
+  # ===========================================================================
+  # Category A — Acute / Urgent (ids 1-5)
+  # ===========================================================================
+
+  - id: 1
+    name: "Acute/heavy bleeding"
+    category: "A"
+    keywords: ["kraftig blødning", "heavy bleeding", "blødning efter indgreb", "bleeding after procedure"]
+    doctor: null
+    duration: null
+    priority: "same_day"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 2
+    name: "Sudden severe pain"
+    category: "A"
+    keywords: ["pludselig smerte", "sudden pain", "kan ikke stå op", "can't stand up"]
+    doctor: null
+    duration: null
+    priority: "same_day"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 3
+    name: "Suspected ectopic pregnancy"
+    category: "A"
+    keywords: ["ektopisk graviditet", "ectopic pregnancy", "gravid med smerter", "pregnant with pain"]
+    doctor: null
+    duration: null
+    priority: "same_day"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 4
+    name: "Pregnancy with bleeding/pain (1st trimester)"
+    category: "A"
+    keywords: ["gravid blødning", "pregnant bleeding", "graviditet smerter", "gravid", "pregnant", "pregnancy bleeding", "pregnancy pain", "første trimester", "1st trimester"]
+    doctor: null
+    duration: null
+    priority: "same_day"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 5
+    name: "Medical abortion"
+    category: "A"
+    keywords: ["abort", "abortion", "medicinsk abort"]
+    doctor: null
+    duration: null
+    priority: "1_2_days"
+    referral_required: false
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # ===========================================================================
+  # Category B — Semi-urgent (ids 6-9)
+  # ===========================================================================
+
+  - id: 6
+    name: "Cancer package referral"
+    category: "B"
+    keywords: ["kræftpakke", "cancer package", "cancer referral"]
+    doctor: ["HS", "LB"]
+    duration: 30
+    priority: "1_week"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 7
+    name: "Postmenopausal bleeding"
+    category: "B"
+    keywords: ["blødning efter overgangsalder", "postmenopausal bleeding", "postmenopausal", "bleeding after menopause", "bløder efter overgangsalder", "blødning efter menopause"]
+    doctor: "HS"
+    duration: 30
+    priority: "1_week"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 8
+    name: "Cone biopsy/conisation"
+    category: "B"
+    keywords: ["keglesnit", "cone biopsy", "konisation", "conisation"]
+    doctor: "HS"
+    duration: 30
+    priority: "14_days"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: "Kegleoperation"
+
+  - id: 9
+    name: "Contact bleeding (cervical)"
+    category: "B"
+    keywords: ["kontaktblødning", "contact bleeding", "bleeding after intercourse", "bleeding after sex", "bleeding during sex", "blødning efter samleje", "blødning ved samleje"]
+    doctor: "LB"
+    duration: 30
+    priority: "14_days"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: "Tissue samples from cervix"
+
+  # ===========================================================================
+  # Category C — Standard / Elective (ids 10-53)
+  # ===========================================================================
+
+  # --- Fertility (10-13) ---
+
+  - id: 10
+    name: "Initial fertility consultation"
+    category: "C"
+    keywords: ["fertilitet", "fertility", "kan ikke blive gravid", "can't get pregnant"]
+    doctor: "LB"
+    duration: 45
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab:
+      condition: "always"
+      tests:
+        - "fertility blood panel (patient)"
+        - "fertility blood panel (partner)"
+        - "semen analysis (partner, hospital AND clinic)"
+        - "HIV, Hepatitis B & C (both, <2 years old)"
+      description: "Blood tests required for both patient and partner"
+    questionnaire: "Infertility Questionnaire (UXOR)"
+    partner_questionnaire: "Infertility Questionnaire (VIR)"
+    guidance: null
+
+  - id: 11
+    name: "Insemination"
+    category: "C"
+    keywords: ["insemination", "inseminering"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 12
+    name: "Follicle scanning"
+    category: "C"
+    keywords: ["follikelskanning", "follicle scanning"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: true
+    cycle_days: [2, 4]
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 13
+    name: "HSU (tube exam)"
+    category: "C"
+    keywords: ["HSU", "tube exam", "æggelederundersøgelse"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: true
+    cycle_days: [6, 10]
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # --- Pregnancy (14) ---
+
+  - id: 14
+    name: "Pregnancy scan without symptoms"
+    category: "C"
+    keywords: ["graviditetsskanning", "pregnancy scan", "gravid scanning"]
+    doctor: "LB"
+    duration: 15
+    priority: "1_week"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # --- Bleeding (15) ---
+
+  - id: 15
+    name: "Premenopausal bleeding"
+    category: "C"
+    keywords: ["blødning", "bleeding", "uregelmæssig blødning", "irregular bleeding"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question:
+      trigger: "age"
+      question: "May I ask your age?"
+      rules:
+        - condition: "age > 45"
+          override_doctor: "HS"
+    lab: null
+    questionnaire: "Premenopausal Bleeding"
+    guidance: null
+
+  # --- Pain (16-17) ---
+
+  - id: 16
+    name: "Pelvic pain/dyspareunia"
+    category: "C"
+    keywords: ["bækkensmerter", "pelvic pain", "smerter ved samleje", "dyspareunia", "pain during intercourse"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "Pelvic Pain"
+    guidance: null
+
+  - id: 17
+    name: "Menstrual pain (possible endometriosis)"
+    category: "C"
+    keywords: ["menstruationssmerter", "menstrual pain", "kraftige menstruationssmerter"]
+    doctor: "HS"
+    duration: 45
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "Pelvic Pain"
+    guidance: null
+
+  # --- Endometriosis (18) ---
+
+  - id: 18
+    name: "Endometriosis — new referral"
+    category: "C"
+    keywords: ["endometriose", "endometriosis"]
+    doctor: "HS"
+    duration: 45
+    priority: "standard"
+    referral_required: true
+    cycle_days: "just_before_next_period"
+    routing_question: null
+    lab: null
+    questionnaire: "Pelvic Pain"
+    guidance: null
+
+  # --- IUD (19-23) ---
+
+  - id: 19
+    name: "IUD insertion"
+    category: "C"
+    keywords: ["spiral indsættelse", "IUD insertion", "ny spiral", "new IUD"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: [3, 7]
+    routing_question: null
+    lab:
+      condition: "age_under_30"
+      test: "chlamydia"
+      description: "Negative chlamydia test required for patients under 30"
+    questionnaire: null
+    guidance: null
+
+  - id: 20
+    name: "IUD removal — standard (strings visible)"
+    category: "C"
+    keywords: ["spiral fjernelse", "IUD removal", "fjern spiral"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question:
+      trigger: "strings"
+      question: "Can the strings usually be seen at your check-ups?"
+      rules:
+        - condition: "strings_not_visible"
+          override_doctor: "HS"
+          override_duration: 30
+          override_condition_id: 23
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 21
+    name: "IUD replacement"
+    category: "C"
+    keywords: ["spiral udskiftning", "IUD replacement", "skift spiral"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: [3, 7]
+    routing_question:
+      trigger: "strings"
+      question: "Can the strings usually be seen at your check-ups?"
+      rules:
+        - condition: "strings_not_visible"
+          override_doctor: "HS"
+    lab:
+      condition: "age_under_30"
+      test: "chlamydia"
+      description: "Negative chlamydia test required for patients under 30"
+    questionnaire: null
+    guidance: null
+
+  - id: 22
+    name: "IUD removal — over 8 years old or no strings"
+    category: "C"
+    keywords: ["gammel spiral", "old IUD", "spiral over 8 år"]
+    doctor: "HS"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 23
+    name: "Hysteroscopic IUD removal/insertion (no visible strings)"
+    category: "C"
+    keywords: ["hysteroskopisk spiral", "hysteroscopic IUD"]
+    doctor: "HS"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: [4, 8]
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # --- Contraception (24-26) ---
+
+  - id: 24
+    name: "Contraception counselling"
+    category: "C"
+    keywords: ["prævention", "contraception", "p-rådgivning", "contraception counselling"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 25
+    name: "Implant insertion"
+    category: "C"
+    keywords: ["p-stav indsættelse", "implant insertion"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: [1, 5]
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 26
+    name: "Implant removal"
+    category: "C"
+    keywords: ["p-stav fjernelse", "implant removal"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # --- Cysts (27-28) ---
+
+  - id: 27
+    name: "Ovarian cysts"
+    category: "C"
+    keywords: ["ovariecyste", "ovarian cyst", "cyste på æggestok"]
+    doctor: "LB"
+    duration: 30
+    priority: "1_month"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  - id: 28
+    name: "Vulva/vaginal cysts"
+    category: "C"
+    keywords: ["bartholin", "vulvacyste", "vaginal cyst"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  # --- Menopause (29-30) ---
+
+  - id: 29
+    name: "Menopause — new referral"
+    category: "C"
+    keywords: ["overgangsalder", "menopause", "klimakterium"]
+    doctor: "HS"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question:
+      trigger: "history"
+      question: "Have you previously been seen by Dr. Skensved at our clinic?"
+      rules:
+        - condition: "no_previous_hs"
+          override_doctor: "LB"
+    lab:
+      condition: "age_under_45"
+      test: "menopause blood panel"
+      description: "Menopause blood panel required for patients under 45"
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  - id: 30
+    name: "Menopause — follow-up"
+    category: "C"
+    keywords: ["overgangsalder kontrol", "menopause follow-up"]
+    doctor: "same_doctor"
+    duration: 15
+    priority: "standard"
+    referral_required: false
+    cycle_days: null
+    routing_question:
+      trigger: "previous_doctor"
+      question: "Which doctor did you see last time?"
+      rules:
+        - condition: "saw_HS"
+          override_doctor: "HS"
+        - condition: "saw_LB"
+          override_doctor: "LB"
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # --- Incontinence (31-33) ---
+
+  - id: 31
+    name: "Incontinence — new referral"
+    category: "C"
+    keywords: ["inkontinens", "incontinence", "urinlækage", "urine leakage"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab:
+      condition: "always"
+      test: "voiding diary"
+      description: "Complete voiding diary for 3+ days before appointment. Bring morning urine sample."
+    questionnaire: "Urinary Problems / Incontinence"
+    guidance: null
+
+  - id: 32
+    name: "Incontinence — follow-up"
+    category: "C"
+    keywords: ["inkontinens kontrol", "incontinence follow-up"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: false
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "Urinary Problems / Incontinence"
+    guidance: null
+
+  - id: 33
+    name: "Recurrent UTI"
+    category: "C"
+    keywords: ["tilbagevendende UVI", "recurrent UTI", "gentagne urinvejsinfektioner", "urinary tract infection", "UTI", "urinvejsinfektion", "keeps getting UTI", "repeated UTI"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  # --- Prolapse (34-36) ---
+
+  - id: 34
+    name: "Prolapse/cystocele/rectocele"
+    category: "C"
+    keywords: ["fremfald", "prolapse", "cystocele", "rectocele"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  - id: 35
+    name: "Prolapse ring — new"
+    category: "C"
+    keywords: ["pessar", "prolapse ring", "ny ring"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  - id: 36
+    name: "Prolapse ring — change/fitting"
+    category: "C"
+    keywords: ["ring skift", "ring change", "ring tilpasning"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: false
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # --- Cervical (37-38) ---
+
+  - id: 37
+    name: "Cell changes (abnormal smear)"
+    category: "C"
+    keywords: ["celleforandringer", "cell changes", "abnorm smear", "abnormal smear"]
+    doctor: "LB"
+    duration: 30
+    priority: "1_month"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "Cell Changes"
+    guidance: "Tissue samples from cervix"
+
+  - id: 38
+    name: "Smear test (routine)"
+    category: "C"
+    keywords: ["celleprøve", "smear test", "rutine celleprøve"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: false
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # --- PCOS (39-40) ---
+
+  - id: 39
+    name: "PCOS — new referral"
+    category: "C"
+    keywords: ["PCOS", "polycystisk", "polycystic"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab:
+      condition: "always"
+      test: "PCOS blood panel on cycle day 3"
+      description: "Blood panel on CD3. If no period, doctor may prescribe Provera."
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  - id: 40
+    name: "PCOS — follow-up"
+    category: "C"
+    keywords: ["PCOS kontrol", "PCOS follow-up"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: false
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # --- Procedures (41-44) ---
+
+  - id: 41
+    name: "Hysteroscopy"
+    category: "C"
+    keywords: ["hysteroskopi", "hysteroscopy"]
+    doctor: "HS"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: [4, 8]
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 42
+    name: "Cystoscopy"
+    category: "C"
+    keywords: ["cystoskopi", "cystoscopy"]
+    doctor: "HS"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 43
+    name: "Polyp removal (cervical)"
+    category: "C"
+    keywords: ["polyp fjernelse cervikal", "cervical polyp removal", "polyp cervix"]
+    doctor: "HS"
+    duration: 45
+    priority: "standard"
+    referral_required: true
+    cycle_days: [5, 7]
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: "Removed polyp info"
+
+  - id: 44
+    name: "Polyp removal (uterine)"
+    category: "C"
+    keywords: ["polyp fjernelse uterin", "uterine polyp removal", "polyp livmoder"]
+    doctor: "HS"
+    duration: 45
+    priority: "standard"
+    referral_required: true
+    cycle_days: [4, 8]
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: "Removed polyp info"
+
+  # --- Skin (45-47) ---
+
+  - id: 45
+    name: "Lichen sclerosus — new"
+    category: "C"
+    keywords: ["lichen sclerosus", "lichen ny"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  - id: 46
+    name: "Lichen sclerosus — follow-up with symptoms"
+    category: "C"
+    keywords: ["lichen kontrol symptomer", "lichen follow-up symptoms"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: false
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 47
+    name: "Lichen sclerosus — annual check"
+    category: "C"
+    keywords: ["lichen årskontrol", "lichen annual check"]
+    doctor: "LB"
+    duration: 15
+    priority: "standard"
+    referral_required: false
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  # --- Vulva/Vagina (48-50) ---
+
+  - id: 48
+    name: "Birth tear damage"
+    category: "C"
+    keywords: ["fødselsskade", "birth tear", "fødselsbristning"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  - id: 49
+    name: "Vaginal opening issues"
+    category: "C"
+    keywords: ["skede åbning", "vaginal opening", "indsnævring", "åbningen af skeden", "vaginismus", "vaginal tightness", "vaginal narrowing", "trang skede"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  - id: 50
+    name: "Itching/burning/discharge"
+    category: "C"
+    keywords: ["kløe", "itching", "svie", "burning", "udflåd", "discharge"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: "You & Your Gynaecological Problem"
+    guidance: null
+
+  # --- Other (51-53) ---
+
+  - id: 51
+    name: "Tamoxifen follow-up"
+    category: "C"
+    keywords: ["tamoxifen", "tamoxifen kontrol"]
+    doctor: "LB"
+    duration: 20
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 52
+    name: "Second opinion"
+    category: "C"
+    keywords: ["second opinion", "anden mening"]
+    doctor: "HS"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question:
+      trigger: "fertility"
+      question: "Is your second opinion related to fertility treatment?"
+      rules:
+        - condition: "fertility_related"
+          override_doctor: "LB"
+    lab: null
+    questionnaire: null
+    guidance: null
+
+  - id: 53
+    name: "Fibroids"
+    category: "C"
+    keywords: ["fibromer", "fibroids", "myomer"]
+    doctor: "LB"
+    duration: 30
+    priority: "standard"
+    referral_required: true
+    cycle_days: null
+    routing_question: null
+    lab: null
+    questionnaire: null
+    guidance: null
+
+# -----------------------------------------------------------------------------
+# Section 3: cycle_rules
+# -----------------------------------------------------------------------------
+cycle_rules:
+  - procedure: "IUD insertion"
+    condition_ids: [19, 21, 23]
+    cycle_days: [3, 7]
+  - procedure: "PCOS blood panel"
+    condition_ids: [39]
+    cycle_days: [3, 3]
+  - procedure: "Follicle scanning"
+    condition_ids: [12]
+    cycle_days: [2, 4]
+  - procedure: "Hysteroscopy"
+    condition_ids: [41]
+    cycle_days: [4, 8]
+  - procedure: "Polyp removal (uterine)"
+    condition_ids: [44]
+    cycle_days: [4, 8]
+  - procedure: "Polyp removal (cervical)"
+    condition_ids: [43]
+    cycle_days: [5, 7]
+  - procedure: "HSU / fertility consult"
+    condition_ids: [13]
+    cycle_days: [6, 10]
+  - procedure: "Implant insertion"
+    condition_ids: [25]
+    cycle_days: [1, 5]
+  - procedure: "Endometriosis"
+    condition_ids: [18]
+    cycle_days: "just_before_next_period"
+
+# -----------------------------------------------------------------------------
+# Section 4: questionnaires
+# -----------------------------------------------------------------------------
+questionnaires:
+  "You & Your Gynaecological Problem":
+    applies_to: [27, 28, 45, 29, 39, 34, 35, 33, 48, 49, 50, 31, 32]
+  "Premenopausal Bleeding":
+    applies_to: [15, 9]
+  "Pelvic Pain":
+    applies_to: [18, 16, 17]
+  "Cell Changes":
+    applies_to: [37]
+  "Urinary Problems / Incontinence":
+    applies_to: [31, 32]
+  "Infertility Questionnaire (UXOR)":
+    applies_to: [10]
+  "Infertility Questionnaire (VIR)":
+    applies_to: [10]
+    target: "partner"
+
+# -----------------------------------------------------------------------------
+# Section 5: guidance_documents + self_pay_prices
+# -----------------------------------------------------------------------------
+guidance_documents:
+  "Kegleoperation":
+    applies_to: [8]
+  "Tissue samples from cervix":
+    applies_to: [37, 9]
+  "Removed polyp info":
+    applies_to: [43, 44]
+
+self_pay_prices:
+  - condition_id: 24
+    name: "Contraception counselling"
+    price_dkk: 1200
+  - condition_id: 38
+    name: "Smear test"
+    price_dkk: 950
+  - condition_id: 19
+    name: "IUD insertion"
+    price_dkk: 3500
+  - condition_id: 20
+    name: "IUD removal"
+    price_dkk: 1800
