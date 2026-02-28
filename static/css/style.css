@@ -295,9 +295,10 @@ body {
     min-height: 0;
     overflow-y: auto;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    padding-bottom: 40px;
+}
+.triage-panel > * + * {
+    margin-top: 16px;
 }
 
 /* Chat Header */
