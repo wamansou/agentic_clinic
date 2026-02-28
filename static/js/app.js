@@ -111,8 +111,8 @@
 
         chatInput.focus();
 
-        // Add welcome message
-        addMessage('agent', 'Welcome to Kvinde Klinikken. How can I help you today?');
+        // Add multilingual welcome message
+        addMessage('agent', 'Welcome to Kvinde Klinikken. How can I help you today?\n\nVelkommen til Kvinde Klinikken. Hvordan kan jeg hjælpe dig i dag?\n\nЛаскаво просимо до Kvinde Klinikken. Чим я можу вам допомогти сьогодні?');
     }
 
     // =========================================================================
