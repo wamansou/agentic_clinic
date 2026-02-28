@@ -11,6 +11,9 @@ __pycache__/
 *.db-shm
 *.db-wal
 
+# Data directory (runtime DBs)
+data/
+
 # Jupyter
 .ipynb_checkpoints/
 

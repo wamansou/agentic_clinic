@@ -4,16 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AI triage system for **Kvinde Klinikken**, a Danish gynecology clinic. Patients interact via chat (WhatsApp/web) and are guided through a multi-agent pipeline that classifies their condition (out of 53 gynecological conditions), determines the right doctor, handles scheduling constraints (menstrual cycle windows, lab prerequisites), and produces a structured booking or staff-handoff request.
+AI triage system for **Kvinde Klinikken**, a Danish gynecology clinic. Patients interact via a web chat UI and are guided through a conversation with an AI triage agent that classifies their condition (out of 53 gynecological conditions), determines the right doctor, handles scheduling constraints (menstrual cycle windows, lab prerequisites), and produces a structured booking or staff-handoff request.
 
-Built on the **OpenAI Agents SDK** with a hub-and-spoke agent architecture and Pydantic structured outputs.
+Built on the **OpenAI Agents SDK** with Pydantic structured outputs and a **FastAPI** web interface.
 
 ## Environment
 
 - **Python 3.14** via `.venv` (activate: `source .venv/bin/activate`)
-- **Key packages:** `openai-agents` 0.10.2, `pydantic` v2, `PyYAML`, `python-dotenv`
-- **LLM:** Configured via `TRIAGE_MODEL` env var in `.env` (currently `gpt-5-mini`)
+- **Key packages:** `openai-agents` 0.10.2, `pydantic` v2, `PyYAML`, `python-dotenv`, `fastapi`, `uvicorn`, `jinja2`
+- **LLM:** Configured via `TRIAGE_MODEL` env var in `.env`
 - **API key:** `OPENAI_API_KEY` in `.env`
+- **Demo auth:** `DEMO_USER` / `DEMO_PASS` in `.env` (defaults: admin / kvinde2026)
 
 ## Running
 
@@ -21,85 +22,97 @@ Built on the **OpenAI Agents SDK** with a hub-and-spoke agent architecture and P
 # Activate venv first
 source .venv/bin/activate
 
-# Interactive triage CLI (war-gaming)
-cd war_games && python triage_app.py
+# Web UI (FastAPI + WebSocket chat)
+python main.py
+# → http://localhost:8000 (login with DEMO_USER/DEMO_PASS)
 
-# Single turn (maintains session state across calls)
-cd war_games && python run_turn.py <session_name> "<patient message>"
-
-# Jupyter notebooks
-jupyter notebook kvinde_klinikken_triage.ipynb
+# War games (AI-vs-AI testing)
+python -m tests.war_games.run_war_games                          # all scenarios
+python -m tests.war_games.run_war_games --scenario selfpay_smear # one scenario
+python -m tests.war_games.run_war_games --list                   # list scenarios
 ```
 
-## Architecture: Hub-and-Spoke Agent Pipeline
+## Architecture
 
-The system uses a **Dispatch agent** as a central router (hub) with 5 specialist agents (spokes) that hand back to Dispatch after completing their step. Two terminal agents produce structured Pydantic output.
+Single conversation agent + Python orchestrator + FastAPI web UI.
 
 ```
-Patient Message → Dispatch (router)
-                    ├→ Intake Agent         (Steps 0-3: language, insurance, referral, name, phone, doctor pref)
-                    ├→ Classification Agent  (Step 4: identify condition from 53 options via keyword search)
-                    ├→ Routing Agent         (Step 5: determine doctor HS/LB based on condition + routing rules)
-                    ├→ Scheduling Agent      (Steps 6-7: cycle window calculation + lab prerequisites)
-                    ├→ Booking Agent         (Steps 8-11: questionnaires, guidance docs, slot presentation → BookingRequest)
-                    └→ Staff Handoff Agent   (terminal: produces HandoffRequest for urgent/DSS/unclear cases)
+Browser → FastAPI (api.py)
+            ├→ WebSocket /ws/{session_id}
+            │     → orchestrator.run_agent_turn()
+            │         → triage_agent (collects data via conversation)
+            │         → enrich_booking() or run_handoff() (deterministic Python)
+            │         → confirmation_agent (generates patient message)
+            ├→ REST API (/api/sessions, /health)
+            └→ Jinja2 templates (chat UI, history dashboard)
 ```
 
-Each specialist agent hands back to Dispatch, which determines the next incomplete step and routes forward. Booking and Staff Handoff are terminal — they produce structured Pydantic output (`BookingRequest` or `HandoffRequest`).
+## Project Structure
+
+```
+new_triage/
+├── conditions.yaml          # Knowledge base: 53 conditions, groups, cycle rules, prices
+├── main.py                  # Uvicorn entry point
+├── triage/                  # Python package
+│   ├── __init__.py
+│   ├── config.py            # YAML loading, MODEL, PROJECT_DIR, CONDITIONS, CONDITION_REFERENCE
+│   ├── models.py            # TriageData, BookingRequest, HandoffRequest, WSMessage, SessionMeta
+│   ├── tools.py             # 6 raw fns + 2 @function_tool + validator
+│   ├── agents.py            # triage_agent, handoff_agent, confirmation_agent + prompts
+│   ├── orchestrator.py      # enrich_booking, run_agent_turn, run_handoff, extract_partial_triage
+│   ├── session_store.py     # SQLite session metadata for dashboard history
+│   ├── auth.py              # Password login via DEMO_USER/DEMO_PASS env vars
+│   └── api.py               # FastAPI app, REST routes, WebSocket
+├── static/
+│   ├── css/style.css
+│   └── js/app.js
+├── templates/
+│   ├── base.html            # Nav, CSS/JS includes
+│   ├── login.html           # Username + password form
+│   ├── index.html           # Chat (left) + triage panel (right) + result card
+│   └── history.html         # Session history table
+├── tests/
+│   └── war_games/           # AI-vs-AI testing
+│       ├── scenarios.py     # 22 test scenarios
+│       ├── runner.py         # Patient simulator + scenario runner
+│       └── run_war_games.py # CLI entry point
+├── data/                    # SQLite DBs (gitignored)
+├── archive/                 # Old monolithic files preserved
+└── Triage_Conversation_Chain.md  # Source specification
+```
 
 ## Key Files
 
-- **`conditions.yaml`** — The knowledge base. Contains all 53 conditions (categories A/B/C), 9 condition groups for disambiguation, cycle rules, questionnaire mappings, guidance documents, and self-pay prices. This is the single source of truth for medical routing logic.
-- **`war_games/triage_app.py`** — The standalone CLI app. Contains all Pydantic models, YAML loading, tool functions (8 tools), and all agent definitions with their prompts. This is the primary codebase.
-- **`war_games/run_turn.py`** — Single-turn runner for scripted war-game testing. Persists agent state in `agent_state.json`.
-- **`Triage_Conversation_Chain.md`** — Source specification document defining the full 11-step triage flow, all conditions, routing rules, and escalation logic.
-- **`docs/plans/`** — Design doc and implementation plan.
-- **`kvinde_klinikken_triage.ipynb`** — Original Jupyter notebook PoC (predates the standalone app).
+- **`conditions.yaml`** — Knowledge base. 53 conditions (categories A/B/C), 9 condition groups, cycle rules, questionnaires, guidance docs, self-pay prices.
+- **`triage/agents.py`** — Agent definitions and the full triage instruction prompt.
+- **`triage/orchestrator.py`** — Core logic: `run_agent_turn()` for web UI, enrichment, handoff processing.
+- **`triage/api.py`** — FastAPI routes and WebSocket handler.
+- **`triage/tools.py`** — Tool functions that query `conditions.yaml`.
 
-## Tool Functions (in triage_app.py)
+## Tool Functions (in triage/tools.py)
 
-All tools search/query `conditions.yaml` and return JSON strings:
-
-| Tool | Used By | Purpose |
-|------|---------|---------|
-| `search_conditions()` | Classification | Keyword search across conditions + groups |
-| `fetch_condition_details()` | Routing | Full condition details by ID |
-| `compute_cycle_window()` | Scheduling | Calculate valid booking dates from cycle data |
-| `check_lab_requirements()` | Scheduling | Check age-dependent lab prerequisites |
-| `fetch_questionnaire()` | Booking | Get pre-visit questionnaire(s) |
-| `fetch_guidance_document()` | Booking | Get patient guidance documents |
-| `find_available_slots()` | Booking | Mock appointment slots (to be replaced with Novax integration) |
-| `check_self_pay_price()` | Booking | Self-pay pricing lookup |
+| Tool | Purpose |
+|------|---------|
+| `fetch_condition_details()` | Full condition details by ID (agent tool) |
+| `complete_triage()` | Submit collected triage data (agent tool, with validation) |
+| `get_condition_details()` | Raw condition lookup |
+| `calculate_cycle_window()` | Calculate valid booking dates from cycle data |
+| `get_lab_requirements()` | Check age-dependent lab prerequisites |
+| `get_questionnaire()` | Get pre-visit questionnaire(s) |
+| `get_guidance_document()` | Get patient guidance documents |
+| `get_self_pay_price()` | Self-pay pricing lookup |
 
 ## Condition Categories
 
-- **Category A (ids 1-5):** Urgent/same-day — always escalate to staff (heavy bleeding, severe pain, ectopic pregnancy, 1st trimester bleeding, abortion)
-- **Category B (ids 6-9):** High priority — book within 1-2 weeks (cancer package, postmenopausal bleeding, cone biopsy, contact bleeding)
-- **Category C (ids 10-53):** Standard — the bulk of bookings, many with cycle-day constraints and routing rules
-
-## Known Issues (from War Games)
-
-Documented in `war_games/war_game_results.md`:
-1. **Dispatch produces text instead of routing** — says "someone will contact you" instead of silently handing off
-2. **Escape hatch too aggressive** — "speak to someone" in conversation history permanently triggers escalation
-3. **Language detection fails on short messages** — "hi" defaults to Danish
-4. **Booking skips two-step slot presentation** — produces BookingRequest without showing slots first
-5. **Date format inconsistency** — model uses DD-MM-YYYY instead of ISO YYYY-MM-DD
+- **Category A (ids 1-5):** Urgent/same-day — always escalate to staff
+- **Category B (ids 6-9):** High priority — book within 1-2 weeks
+- **Category C (ids 10-53):** Standard bookings, many with cycle-day constraints
 
 ## Domain-Specific Rules
 
 - **Doctor routing:** Two doctors — Dr. HS (Skensved) and Dr. LB. Routing depends on condition, patient age (>45 for bleeding), IUD string visibility, menopause history, and fertility context.
-- **DSS/private insurance:** Always hand off to staff — too many unknowns for AI.
-- **Cycle-dependent procedures:** 9 procedures require booking on specific menstrual cycle days (e.g., IUD insertion CD 3-7, hysteroscopy CD 4-8). Endometriosis is special: "just before next period."
-- **Condition groups:** 9 ambiguous keyword groups (IUD, Prolapse, Polyps, etc.) require clarifying questions before mapping to a specific condition ID.
-- **Languages:** Danish (primary), English, Ukrainian. Agent must respond in the patient's language.
+- **DSS/private insurance:** Always hand off to staff.
+- **Cycle-dependent procedures:** 9 procedures require booking on specific menstrual cycle days.
+- **Condition groups:** 9 ambiguous keyword groups require clarifying questions.
+- **Languages:** Danish (primary), English, Ukrainian.
 - **Self-pay path:** Patients without referrals can proceed as self-pay for certain conditions.
-
-## Agent Prompting Conventions
-
-All agents share a `SPECIALIST_PREAMBLE` that enforces:
-- Read full conversation history before acting
-- Never re-ask information already provided
-- One question at a time, natural conversation (no numbered lists)
-- Language matching with the patient
-- Immediate handoff on "speak to staff" requests

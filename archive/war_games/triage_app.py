@@ -93,48 +93,50 @@ with open("conditions.yaml") as f:
 
 CONDITIONS = {c["id"]: c for c in CONFIG["conditions"]}
 GROUPS = CONFIG["condition_groups"]
-CYCLE_RULES = CONFIG["cycle_rules"]
-QUESTIONNAIRES = CONFIG["questionnaires"]
-GUIDANCE_DOCS = CONFIG["guidance_documents"]
-SELF_PAY_PRICES = {p["condition_id"]: p for p in CONFIG.get("self_pay_prices", [])}
+
+
+# =============================================================================
+# Build Condition Reference (injected into agent prompt)
+# =============================================================================
+
+def _build_condition_reference() -> str:
+    """Generate a compact reference table of all conditions and groups for the LLM prompt."""
+    lines = ["=== CONDITION REFERENCE ==="]
+
+    # Group conditions by category
+    cat_labels = {
+        "A": "CATEGORY A (Urgent — escalate to staff)",
+        "B": "CATEGORY B (Semi-urgent — book within 1-2 weeks)",
+        "C": "CATEGORY C (Standard)",
+    }
+    by_cat: dict[str, list] = {"A": [], "B": [], "C": []}
+    for cond in CONFIG["conditions"]:
+        by_cat[cond["category"]].append(cond)
+
+    for cat in ("A", "B", "C"):
+        lines.append(f"\n--- {cat_labels[cat]} ---")
+        for c in by_cat[cat]:
+            desc = c.get("description", c["name"])
+            lines.append(f"  [{c['id']}] {c['name']}: {desc}")
+
+    # Condition groups
+    lines.append("\n=== CONDITION GROUPS (ask clarifying question before assigning) ===")
+    for group in GROUPS:
+        desc = group.get("description", "")
+        lines.append(f"\n  GROUP: {group['group']} — {desc}")
+        lines.append(f"  Ask: \"{group['clarifying_question']}\"")
+        for opt in group["options"]:
+            lines.append(f"    - {opt['label']} → condition [{opt['condition_id']}]")
+
+    return "\n".join(lines)
+
+
+CONDITION_REFERENCE = _build_condition_reference()
 
 
 # =============================================================================
 # Raw Tool Functions (deterministic Python — unchanged from v1)
 # =============================================================================
-
-def lookup_conditions(description: str) -> str:
-    description_lower = description.lower()
-    matches = []
-    group_matches = []
-
-    for cond in CONFIG["conditions"]:
-        for keyword in cond["keywords"]:
-            if keyword.lower() in description_lower:
-                matches.append({
-                    "type": "condition",
-                    "id": cond["id"],
-                    "name": cond["name"],
-                    "category": cond["category"],
-                    "doctor": cond["doctor"],
-                    "duration": cond["duration"],
-                    "priority": cond["priority"],
-                })
-                break
-
-    for group in GROUPS:
-        for keyword in group["keywords"]:
-            if keyword.lower() in description_lower:
-                group_matches.append({
-                    "type": "group",
-                    "group": group["group"],
-                    "clarifying_question": group["clarifying_question"],
-                    "options": group["options"],
-                })
-                break
-
-    return json.dumps({"conditions": matches, "groups": group_matches}, indent=2, ensure_ascii=False)
-
 
 def get_condition_details(condition_id: int) -> str:
     cond = CONDITIONS.get(condition_id)
@@ -234,34 +236,31 @@ def get_lab_requirements(condition_id: int, patient_age: int | None = None) -> s
 
 
 def get_questionnaire(condition_id: int) -> str:
-    result = {"questionnaires": []}
-    for name, info in QUESTIONNAIRES.items():
-        if condition_id in info["applies_to"]:
-            entry = {"name": name}
-            if info.get("target"):
-                entry["target"] = info["target"]
-            result["questionnaires"].append(entry)
-
     cond = CONDITIONS.get(condition_id)
-    if cond and cond.get("partner_questionnaire"):
-        result["partner_questionnaire"] = cond["partner_questionnaire"]
+    if not cond:
+        return json.dumps({"questionnaires": [], "message": "Condition not found."})
 
+    result = {"questionnaires": []}
+    if cond.get("questionnaires"):
+        result["questionnaires"] = [{"name": q} for q in cond["questionnaires"]]
+    if cond.get("partner_questionnaire"):
+        result["partner_questionnaire"] = cond["partner_questionnaire"]
     if not result["questionnaires"]:
         result["message"] = "No questionnaire required for this condition."
     return json.dumps(result, ensure_ascii=False)
 
 
 def get_guidance_document(condition_id: int) -> str:
-    for name, info in GUIDANCE_DOCS.items():
-        if condition_id in info["applies_to"]:
-            return json.dumps({"document": name})
+    cond = CONDITIONS.get(condition_id)
+    if cond and cond.get("guidance_document"):
+        return json.dumps({"document": cond["guidance_document"]})
     return json.dumps({"document": None, "message": "No guidance document for this condition."})
 
 
 def get_self_pay_price(condition_id: int) -> str:
-    price_entry = SELF_PAY_PRICES.get(condition_id)
-    if price_entry:
-        return json.dumps(price_entry, ensure_ascii=False)
+    cond = CONDITIONS.get(condition_id)
+    if cond and cond.get("self_pay_price_dkk"):
+        return json.dumps({"condition_id": condition_id, "name": cond["name"], "price_dkk": cond["self_pay_price_dkk"]}, ensure_ascii=False)
     return json.dumps({"price_dkk": None, "message": "Price not yet available. Staff will confirm the cost."})
 
 
@@ -269,18 +268,12 @@ def get_self_pay_price(condition_id: int) -> str:
 # Agent SDK Setup
 # =============================================================================
 
-from agents import Agent, Runner, SQLiteSession, function_tool
+from agents import Agent, Runner, SQLiteSession, ModelSettings, function_tool
 from agents.agent import ToolsToFinalOutputResult
 from agents.tool import FunctionToolResult
 
 
-# --- Agent tools (only 3: search, details, complete) ---
-
-@function_tool
-def search_conditions(patient_description: str) -> str:
-    """Search the clinic's condition database using the patient's description of their issue. Returns matching conditions and/or condition groups that need disambiguation."""
-    return lookup_conditions(patient_description)
-
+# --- Agent tools (details + complete) ---
 
 @function_tool
 def fetch_condition_details(condition_id: int) -> str:
@@ -297,7 +290,7 @@ def complete_triage(data: TriageData) -> str:
         if data.condition_id is None:
             return (
                 "ERROR: condition_id is required for non-escalation bookings. "
-                "You MUST call search_conditions() first to identify the condition, "
+                "You MUST identify the condition from the CONDITION REFERENCE in your prompt, "
                 "then call fetch_condition_details() to get routing info. "
                 "Do NOT call complete_triage until you have condition_id."
             )
@@ -340,10 +333,6 @@ _TODAY_READABLE = _TODAY.strftime("%A, %B %d, %Y")
 TRIAGE_INSTRUCTIONS = f"""You are the AI triage assistant for Kvinde Klinikken, a Danish gynecology clinic.
 You handle the ENTIRE patient conversation — from greeting to final data collection.
 
-=== TODAY'S DATE ===
-Today is {_TODAY_READABLE} ({_TODAY_ISO}).
-Use this to interpret relative dates from patients (see CYCLE INFO section).
-
 === LANGUAGE DETECTION ===
 Detect from the patient's WORDS (not names or context):
 - English words ("Hi", "Hello", "I have") → respond in English
@@ -374,7 +363,7 @@ Do NOT escalate for:
 - Chronic or recurring bleeding patterns — this is Category C, handle through normal booking
 - Bleeding that started days/weeks ago and is not currently heavy/acute — handle through normal booking
 
-If the patient describes a TRUE Category A emergency → call search_conditions() to confirm Category A → tell them empathetically this needs urgent attention and that a staff member will contact them very soon. Then ask for their name and phone number (you can ask both in one message for urgency). Once you have name + phone, call complete_triage with escalate=true, escalation_reason="Category A: [condition]", AND fill in condition_id, condition_name, and category="A" from the search_conditions result. Skip insurance, referral, and all other intake steps — just name and phone.
+If the patient describes a TRUE Category A emergency → identify the Category A condition from the CONDITION REFERENCE below → tell them empathetically this needs urgent attention and that a staff member will contact them very soon. Then ask for their name and phone number (you can ask both in one message for urgency). Once you have name + phone, call complete_triage with escalate=true, escalation_reason="Category A: [condition]", AND fill in condition_id, condition_name, and category="A". Skip insurance, referral, and all other intake steps — just name and phone.
 
 === CONVERSATION FLOW ===
 For NON-URGENT cases, collect information in this order. Ask ONE question at a time. Skip items the patient already provided.
@@ -393,13 +382,15 @@ For NON-URGENT cases, collect information in this order. Ask ONE question at a t
 4. PHONE NUMBER — "And a phone number where we can reach you?"
 
 5. CONDITION — "What brings you in today?"
-   - Call search_conditions() with the patient's description
-   - If MULTIPLE conditions are returned, pick the most SPECIFIC match (e.g. "contact bleeding" is more specific than generic "bleeding"). Prefer higher-priority categories (A > B > C) when descriptions match equally.
-   - IMPORTANT: If the patient mentions BOTH bleeding AND menopause/overgangsalder (especially age >50), search for "postmenopausal bleeding" specifically — this is Category B, NOT regular menopause.
-   - If the patient is PREGNANT and has bleeding/pain, this is Category A (condition 4), NOT premenopausal bleeding (condition 15).
-   - If a CONDITION GROUP is returned → ask the group's clarifying_question naturally (do NOT show numbered lists)
-   - If Category A (urgent) → tell the patient empathetically that this needs urgent attention → set escalate=true → call complete_triage
-   - Once you have a specific condition_id → call fetch_condition_details() to get routing info
+   - Match the patient's description against the CONDITION REFERENCE below.
+   - Check CONDITION GROUPS first. If the description matches a group, ask the clarifying question to narrow down to a specific condition ID.
+   - If it clearly matches a single condition, note the ID.
+   - If you cannot determine a clear match, ask ONE clarifying question.
+   - If the patient's symptoms still don't match any condition after clarification, do NOT force a match. Instead, set escalate=true with escalation_reason="Condition not found in database — requires staff review" and call complete_triage.
+   - IMPORTANT: If the patient mentions BOTH bleeding AND menopause/overgangsalder (especially age >50), this is postmenopausal bleeding [7] (Category B), NOT regular menopause [29].
+   - If the patient is PREGNANT and has bleeding/pain, this is Category A (condition [4]), NOT premenopausal bleeding [15].
+   - If Category A → empathize, escalate, skip remaining steps.
+   - Once you have a condition_id → call fetch_condition_details(condition_id) to get routing info.
 
 6. ROUTING FOLLOW-UPS — Only if the condition has a routing_question:
    - Condition 15 (premenopausal bleeding): ask age → age >45: doctor="HS", age ≤45: doctor="LB"
@@ -412,20 +403,25 @@ For NON-URGENT cases, collect information in this order. Ask ONE question at a t
 7. CYCLE INFO — Only if the condition has cycle_days (check from fetch_condition_details result):
    - Ask: "When did your last period start?"
    - The patient may answer with a relative expression like "about a week ago", "last Monday", "10 days ago", "on the 15th".
-     Convert their answer to YYYY-MM-DD using today's date ({_TODAY_ISO}) as reference. Do NOT ask the patient to restate in a specific format.
+     Convert their answer to YYYY-MM-DD using today's date (see TODAY'S DATE section at the end). Do NOT ask the patient to restate in a specific format.
    - Ask: "How long is your cycle usually?" (default 28 if patient unsure)
    - If patient mentions no periods / amenorrhea / PCOS → set no_periods=true
 
-=== MANDATORY TOOL USAGE ===
-You MUST call these tools in order before completing:
-1. search_conditions() — to identify the patient's condition (REQUIRED for every non-escalation case)
-2. fetch_condition_details() — to get doctor, duration, priority, cycle_days, routing_question (REQUIRED after identifying condition)
-3. complete_triage() — only AFTER you have condition_id and doctor from the above tools
+=== MANDATORY TOOL USAGE — CRITICAL ===
+NEVER produce a text summary of the booking. NEVER tell the patient "I've registered your appointment" or "I'll arrange your booking" in text. Your ONLY way to complete the conversation is by calling complete_triage(). If you have enough information, CALL THE TOOL — do not describe what you would do.
+
+You MUST follow these steps in order:
+1. Identify condition from the CONDITION REFERENCE below (no tool needed — use your reasoning to match the patient's description)
+2. IMMEDIATELY call fetch_condition_details(condition_id) — to get doctor, duration, priority, cycle_days, routing_question (REQUIRED after identifying condition)
+3. Ask any routing/cycle follow-up questions if needed (based on the fetch_condition_details result)
+4. IMMEDIATELY call complete_triage() with ALL collected data — this is the ONLY way to finish
 
 NEVER call complete_triage with condition_id=null or doctor=null for non-escalation cases. The system will reject it.
 
 === WHEN DONE ===
-Once you have all required info, call complete_triage with ALL collected data:
+As soon as you have all required info, IMMEDIATELY call complete_triage(). Do NOT send the patient a text message summarizing the booking — the system handles confirmation separately.
+
+Fill in ALL fields you have gathered:
 - language, insurance_type, has_referral, patient_name, phone_number
 - condition_id, condition_name, category, doctor, duration_minutes, priority_window
 - patient_age (only if asked/provided), last_period_date, cycle_length, no_periods
@@ -445,14 +441,24 @@ IGNORE older messages with similar phrases — only the current message triggers
 - Store all dates in YYYY-MM-DD format in complete_triage output (but accept natural language dates from patients — convert them yourself)
 - Do NOT ask for doctor preference during intake — only ask routing questions when the condition requires it
 - Do NOT ask for age unless the condition's routing_question requires it
-- Do NOT ask for cycle info unless the condition has cycle_days"""
+- Do NOT ask for cycle info unless the condition has cycle_days
+- NEVER produce a text response when you have enough data to call a tool — always prefer calling fetch_condition_details() or complete_triage() over sending text
+- NEVER say "I've registered/arranged/booked your appointment" — only complete_triage() does that
+
+""" + CONDITION_REFERENCE + f"""
+
+=== TODAY'S DATE ===
+Today is {_TODAY_READABLE} ({_TODAY_ISO}).
+Use this to convert relative dates from patients (e.g. "about a week ago", "last Monday") to YYYY-MM-DD format.
+"""
 
 triage_agent = Agent(
     name="Triage",
     model=MODEL,
     instructions=TRIAGE_INSTRUCTIONS,
-    tools=[search_conditions, fetch_condition_details, complete_triage],
+    tools=[fetch_condition_details, complete_triage],
     tool_use_behavior=_validate_complete_triage,
+    model_settings=ModelSettings(prompt_cache_retention="24h"),
 )
 
 
@@ -553,14 +559,7 @@ def _enrich_booking(triage: TriageData) -> BookingRequest:
     # Questionnaire
     q_result = json.loads(get_questionnaire(triage.condition_id))
     if q_result.get("questionnaires"):
-        names = []
-        for q in q_result["questionnaires"]:
-            if q.get("target") == "partner":
-                booking.partner_questionnaire = q["name"]
-            else:
-                names.append(q["name"])
-        if names:
-            booking.questionnaire = ", ".join(names)
+        booking.questionnaire = ", ".join(q["name"] for q in q_result["questionnaires"])
     if q_result.get("partner_questionnaire"):
         booking.partner_questionnaire = q_result["partner_questionnaire"]
 

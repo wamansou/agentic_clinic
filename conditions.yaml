@@ -3,6 +3,9 @@
 # =============================================================================
 # This file is the knowledge base for the entire triage system.
 # It is loaded by Python code and queried by agent tool functions.
+#
+# Each condition is SELF-CONTAINED: questionnaires, guidance documents,
+# and self-pay prices are embedded directly in the condition object.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -11,6 +14,7 @@
 # -----------------------------------------------------------------------------
 condition_groups:
   - group: "IUD"
+    description: "Patient mentions an IUD, spiral, coil, or copper/hormonal intrauterine device but it's unclear whether they need insertion, removal, replacement, or a hysteroscopic procedure."
     keywords: ["spiral", "IUD", "kobberspiral", "hormonspiral", "copper IUD", "hormonal IUD"]
     clarifying_question: "What do you need help with regarding your IUD (spiral)?"
     options:
@@ -26,6 +30,7 @@ condition_groups:
         condition_id: 23
 
   - group: "Prolapse"
+    description: "Patient mentions prolapse, something falling down or bulging in the vaginal area, or a pessary/ring, but it's unclear if they need a new assessment, a new ring fitted, or an existing ring changed."
     keywords: ["fremfald", "prolapse", "pessar", "ring", "cystocele", "rectocele"]
     clarifying_question: "What do you need help with regarding prolapse?"
     options:
@@ -37,6 +42,7 @@ condition_groups:
         condition_id: 36
 
   - group: "Polyp removal"
+    description: "Patient has been referred for polyp removal but it's unclear whether the polyp is on the cervix (cervical) or inside the uterus (uterine). These require different procedures."
     keywords: ["polyp", "polyp fjernelse", "polyp removal"]
     clarifying_question: "Where is the polyp located?"
     options:
@@ -46,6 +52,7 @@ condition_groups:
         condition_id: 44
 
   - group: "Lichen sclerosus"
+    description: "Patient mentions lichen sclerosus but it's unclear if this is a first-time assessment, a follow-up because symptoms persist, or a routine annual check."
     keywords: ["lichen", "lichen sclerosus"]
     clarifying_question: "What type of lichen sclerosus appointment do you need?"
     options:
@@ -57,6 +64,7 @@ condition_groups:
         condition_id: 47
 
   - group: "Incontinence"
+    description: "Patient mentions urinary leakage, incontinence, or bladder control problems but it's unclear if this is a new referral or a follow-up visit."
     keywords: ["inkontinens", "incontinence", "urinlækage", "urine leakage"]
     clarifying_question: "Is this a new referral or a follow-up?"
     options:
@@ -66,6 +74,7 @@ condition_groups:
         condition_id: 32
 
   - group: "PCOS"
+    description: "Patient mentions PCOS or polycystic ovaries but it's unclear if this is a new referral or a follow-up visit."
     keywords: ["PCOS", "polycystisk", "polycystic"]
     clarifying_question: "Is this a new referral or a follow-up for PCOS?"
     options:
@@ -75,6 +84,7 @@ condition_groups:
         condition_id: 40
 
   - group: "Menopause"
+    description: "Patient mentions menopause, hot flashes, night sweats, or hormonal changes around age 45-55, but it's unclear if this is a first visit or a follow-up."
     keywords: ["overgangsalder", "menopause", "klimakterium"]
     clarifying_question: "Is this a new referral or a follow-up for menopause?"
     options:
@@ -84,6 +94,7 @@ condition_groups:
         condition_id: 30
 
   - group: "Contraception"
+    description: "Patient wants help with birth control but it's unclear if they need counselling about options, a contraceptive implant (p-stav) inserted, or an implant removed."
     keywords: ["prævention", "contraception", "p-stav", "implant"]
     clarifying_question: "What do you need help with regarding contraception?"
     options:
@@ -95,6 +106,7 @@ condition_groups:
         condition_id: 26
 
   - group: "Cysts"
+    description: "Patient mentions a cyst but it's unclear if it's an ovarian cyst (on the ovary) or a vulva/vaginal cyst such as a Bartholin's cyst. These require different appointments."
     keywords: ["cyste", "cyst", "bartholin"]
     clarifying_question: "What type of cyst are you being referred for?"
     options:
@@ -105,6 +117,7 @@ condition_groups:
 
 # -----------------------------------------------------------------------------
 # Section 2: conditions (53 conditions)
+# Each condition is self-contained with all associated data embedded.
 # -----------------------------------------------------------------------------
 conditions:
 
@@ -114,6 +127,7 @@ conditions:
 
   - id: 1
     name: "Acute/heavy bleeding"
+    description: "Patient is hemorrhaging RIGHT NOW — soaking through pads, can't stop the bleeding, heavy bleeding after a procedure. This is an active emergency, not a report of past bleeding."
     category: "A"
     keywords: ["kraftig blødning", "heavy bleeding", "blødning efter indgreb", "bleeding after procedure"]
     doctor: null
@@ -123,11 +137,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 2
     name: "Sudden severe pain"
+    description: "Patient has sudden, acute onset of severe pain — can't stand up, worst pain of their life. Not chronic/recurring pain, but happening RIGHT NOW."
     category: "A"
     keywords: ["pludselig smerte", "sudden pain", "kan ikke stå op", "can't stand up"]
     doctor: null
@@ -137,11 +153,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 3
     name: "Suspected ectopic pregnancy"
+    description: "Patient is pregnant AND has sharp/one-sided abdominal pain, possibly with bleeding, dizziness, or shoulder pain. Pregnancy + pain = suspect ectopic."
     category: "A"
     keywords: ["ektopisk graviditet", "ectopic pregnancy", "gravid med smerter", "pregnant with pain"]
     doctor: null
@@ -151,13 +169,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 4
     name: "Pregnancy with bleeding/pain (1st trimester)"
+    description: "Patient is pregnant (or just found out) and is experiencing bleeding or cramping in the first 12 weeks. Different from condition 14 (no symptoms) — here the patient HAS bleeding or pain alongside pregnancy."
     category: "A"
-    keywords: ["gravid blødning", "pregnant bleeding", "graviditet smerter", "gravid", "pregnant", "pregnancy bleeding", "pregnancy pain", "første trimester", "1st trimester"]
+    keywords: ["gravid blødning", "pregnant bleeding", "graviditet smerter", "pregnancy bleeding", "pregnancy pain", "første trimester", "1st trimester"]
     doctor: null
     duration: null
     priority: "same_day"
@@ -165,11 +185,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 5
     name: "Medical abortion"
+    description: "Patient wants to end a pregnancy, needs an abortion, wants to terminate. May say 'abort', 'I don't want to keep it', 'end the pregnancy'."
     category: "A"
     keywords: ["abort", "abortion", "medicinsk abort"]
     doctor: null
@@ -179,8 +201,9 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # ===========================================================================
   # Category B — Semi-urgent (ids 6-9)
@@ -188,6 +211,7 @@ conditions:
 
   - id: 6
     name: "Cancer package referral"
+    description: "Patient's GP has sent an urgent cancer referral (kræftpakke). The patient has a letter or was told by their GP they are being referred under the cancer fast-track pathway."
     category: "B"
     keywords: ["kræftpakke", "cancer package", "cancer referral"]
     doctor: ["HS", "LB"]
@@ -197,11 +221,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 7
     name: "Postmenopausal bleeding"
+    description: "Woman who has gone through menopause (periods stopped for 12+ months) and has started bleeding again. NOT the same as irregular periods before menopause (condition 15) or menopause symptoms (condition 29)."
     category: "B"
     keywords: ["blødning efter overgangsalder", "postmenopausal bleeding", "postmenopausal", "bleeding after menopause", "bløder efter overgangsalder", "blødning efter menopause"]
     doctor: "HS"
@@ -211,11 +237,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 8
     name: "Cone biopsy/conisation"
+    description: "Patient has been referred for a cone biopsy (keglesnit) to remove a cone-shaped piece of the cervix, usually after abnormal cell changes were found."
     category: "B"
     keywords: ["keglesnit", "cone biopsy", "konisation", "conisation"]
     doctor: "HS"
@@ -225,11 +253,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: "Kegleoperation"
+    questionnaires: null
+    guidance_document: "Kegleoperation"
+    self_pay_price_dkk: null
 
   - id: 9
     name: "Contact bleeding (cervical)"
+    description: "Patient bleeds after sexual intercourse or during sex. 'Bleeding after sex', 'blødning efter samleje'. Different from irregular periods (condition 15)."
     category: "B"
     keywords: ["kontaktblødning", "contact bleeding", "bleeding after intercourse", "bleeding after sex", "bleeding during sex", "blødning efter samleje", "blødning ved samleje"]
     doctor: "LB"
@@ -239,8 +269,9 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: "Tissue samples from cervix"
+    questionnaires: ["Premenopausal Bleeding"]
+    guidance_document: "Tissue samples from cervix"
+    self_pay_price_dkk: null
 
   # ===========================================================================
   # Category C — Standard / Elective (ids 10-53)
@@ -250,6 +281,7 @@ conditions:
 
   - id: 10
     name: "Initial fertility consultation"
+    description: "Patient is trying to get pregnant but hasn't succeeded. 'Can't get pregnant', 'fertility problems', 'trying to conceive', 'been trying for a year'. First visit for fertility investigation."
     category: "C"
     keywords: ["fertilitet", "fertility", "kan ikke blive gravid", "can't get pregnant"]
     doctor: "LB"
@@ -266,12 +298,14 @@ conditions:
         - "semen analysis (partner, hospital AND clinic)"
         - "HIV, Hepatitis B & C (both, <2 years old)"
       description: "Blood tests required for both patient and partner"
-    questionnaire: "Infertility Questionnaire (UXOR)"
+    questionnaires: ["Infertility Questionnaire (UXOR)"]
     partner_questionnaire: "Infertility Questionnaire (VIR)"
-    guidance: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 11
     name: "Insemination"
+    description: "Patient is already in fertility treatment and needs an insemination procedure. This is a specific treatment step, not a first consultation."
     category: "C"
     keywords: ["insemination", "inseminering"]
     doctor: "LB"
@@ -281,11 +315,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 12
     name: "Follicle scanning"
+    description: "Patient needs follicle monitoring as part of fertility treatment — ultrasound to check egg development. This is a specific treatment step, not a first consultation."
     category: "C"
     keywords: ["follikelskanning", "follicle scanning"]
     doctor: "LB"
@@ -295,11 +331,13 @@ conditions:
     cycle_days: [2, 4]
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 13
     name: "HSU (tube exam)"
+    description: "Patient needs a fallopian tube examination (HSU / æggelederundersøgelse) to check if the tubes are open. Part of fertility investigation."
     category: "C"
     keywords: ["HSU", "tube exam", "æggelederundersøgelse"]
     doctor: "LB"
@@ -309,15 +347,17 @@ conditions:
     cycle_days: [6, 10]
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Pregnancy (14) ---
 
   - id: 14
     name: "Pregnancy scan without symptoms"
+    description: "Patient thinks they might be pregnant, wants to confirm pregnancy, needs a dating scan or early pregnancy scan. No bleeding, no pain — just wants confirmation. 'Missed period', 'positive home test', 'I think I'm pregnant', 'want a pregnancy test'."
     category: "C"
-    keywords: ["graviditetsskanning", "pregnancy scan", "gravid scanning"]
+    keywords: ["graviditetsskanning", "pregnancy scan"]
     doctor: "LB"
     duration: 15
     priority: "1_week"
@@ -325,13 +365,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Bleeding (15) ---
 
   - id: 15
     name: "Premenopausal bleeding"
+    description: "Patient has irregular bleeding, heavy periods, bleeding between periods, or prolonged bleeding — but is NOT post-menopausal and NOT pregnant. If the patient is past menopause, see condition 7 instead."
     category: "C"
     keywords: ["blødning", "bleeding", "uregelmæssig blødning", "irregular bleeding"]
     doctor: "LB"
@@ -346,13 +388,15 @@ conditions:
         - condition: "age > 45"
           override_doctor: "HS"
     lab: null
-    questionnaire: "Premenopausal Bleeding"
-    guidance: null
+    questionnaires: ["Premenopausal Bleeding"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Pain (16-17) ---
 
   - id: 16
     name: "Pelvic pain/dyspareunia"
+    description: "Patient has chronic pelvic pain, lower abdominal pain, or pain during sexual intercourse (dyspareunia). Not sudden/acute pain (that's condition 2) and not specifically menstrual cramps (that's condition 17)."
     category: "C"
     keywords: ["bækkensmerter", "pelvic pain", "smerter ved samleje", "dyspareunia", "pain during intercourse"]
     doctor: "LB"
@@ -362,11 +406,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "Pelvic Pain"
-    guidance: null
+    questionnaires: ["Pelvic Pain"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 17
     name: "Menstrual pain (possible endometriosis)"
+    description: "Patient has severe menstrual cramps, painful periods, 'period cramps', 'menstruationssmerter'. Pain is tied to the menstrual cycle. May be early-stage endometriosis investigation."
     category: "C"
     keywords: ["menstruationssmerter", "menstrual pain", "kraftige menstruationssmerter"]
     doctor: "HS"
@@ -376,13 +422,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "Pelvic Pain"
-    guidance: null
+    questionnaires: ["Pelvic Pain"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Endometriosis (18) ---
 
   - id: 18
     name: "Endometriosis — new referral"
+    description: "Patient has been referred specifically for endometriosis assessment. They may already have a suspected or confirmed diagnosis. Different from condition 17 (menstrual pain) which is the initial investigation."
     category: "C"
     keywords: ["endometriose", "endometriosis"]
     doctor: "HS"
@@ -392,13 +440,15 @@ conditions:
     cycle_days: "just_before_next_period"
     routing_question: null
     lab: null
-    questionnaire: "Pelvic Pain"
-    guidance: null
+    questionnaires: ["Pelvic Pain"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- IUD (19-23) ---
 
   - id: 19
     name: "IUD insertion"
+    description: "Patient wants a new IUD (spiral) put in. First-time IUD or new one after previous removal."
     category: "C"
     keywords: ["spiral indsættelse", "IUD insertion", "ny spiral", "new IUD"]
     doctor: "LB"
@@ -411,11 +461,13 @@ conditions:
       condition: "age_under_30"
       test: "chlamydia"
       description: "Negative chlamydia test required for patients under 30"
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: 3500
 
   - id: 20
     name: "IUD removal — standard (strings visible)"
+    description: "Patient wants their IUD (spiral) taken out. The strings are visible/accessible. Quick, simple removal."
     category: "C"
     keywords: ["spiral fjernelse", "IUD removal", "fjern spiral"]
     doctor: "LB"
@@ -432,11 +484,13 @@ conditions:
           override_duration: 30
           override_condition_id: 23
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: 1800
 
   - id: 21
     name: "IUD replacement"
+    description: "Patient wants to swap their current IUD for a new one — removal and insertion in the same visit."
     category: "C"
     keywords: ["spiral udskiftning", "IUD replacement", "skift spiral"]
     doctor: "LB"
@@ -454,11 +508,13 @@ conditions:
       condition: "age_under_30"
       test: "chlamydia"
       description: "Negative chlamydia test required for patients under 30"
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 22
     name: "IUD removal — over 8 years old or no strings"
+    description: "Patient's IUD has been in for over 8 years, or the strings cannot be found at check-ups. Requires specialist removal."
     category: "C"
     keywords: ["gammel spiral", "old IUD", "spiral over 8 år"]
     doctor: "HS"
@@ -468,11 +524,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 23
     name: "Hysteroscopic IUD removal/insertion (no visible strings)"
+    description: "IUD procedure that requires a hysteroscope — typically because the strings are not visible and the IUD cannot be removed normally."
     category: "C"
     keywords: ["hysteroskopisk spiral", "hysteroscopic IUD"]
     doctor: "HS"
@@ -482,13 +540,15 @@ conditions:
     cycle_days: [4, 8]
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Contraception (24-26) ---
 
   - id: 24
     name: "Contraception counselling"
+    description: "Patient wants advice about birth control options — pills, IUD, implant, etc. General counselling, not a specific procedure."
     category: "C"
     keywords: ["prævention", "contraception", "p-rådgivning", "contraception counselling"]
     doctor: "LB"
@@ -498,11 +558,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: 1200
 
   - id: 25
     name: "Implant insertion"
+    description: "Patient wants a contraceptive implant (p-stav) put in their arm."
     category: "C"
     keywords: ["p-stav indsættelse", "implant insertion"]
     doctor: "LB"
@@ -512,11 +574,13 @@ conditions:
     cycle_days: [1, 5]
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 26
     name: "Implant removal"
+    description: "Patient wants their contraceptive implant (p-stav) removed from their arm."
     category: "C"
     keywords: ["p-stav fjernelse", "implant removal"]
     doctor: "LB"
@@ -526,13 +590,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Cysts (27-28) ---
 
   - id: 27
     name: "Ovarian cysts"
+    description: "Patient has been referred for an ovarian cyst — a cyst on the ovary found on ultrasound or causing symptoms."
     category: "C"
     keywords: ["ovariecyste", "ovarian cyst", "cyste på æggestok"]
     doctor: "LB"
@@ -542,11 +608,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 28
     name: "Vulva/vaginal cysts"
+    description: "Patient has a cyst on the vulva or in the vaginal area, such as a Bartholin's cyst (swelling near the vaginal opening)."
     category: "C"
     keywords: ["bartholin", "vulvacyste", "vaginal cyst"]
     doctor: "LB"
@@ -556,13 +624,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Menopause (29-30) ---
 
   - id: 29
     name: "Menopause — new referral"
+    description: "Patient has menopause symptoms — hot flashes, night sweats, mood changes, vaginal dryness — and this is their first visit. 'Overgangsalder', 'going through menopause', 'klimakterium'."
     category: "C"
     keywords: ["overgangsalder", "menopause", "klimakterium"]
     doctor: "HS"
@@ -580,11 +650,13 @@ conditions:
       condition: "age_under_45"
       test: "menopause blood panel"
       description: "Menopause blood panel required for patients under 45"
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 30
     name: "Menopause — follow-up"
+    description: "Patient is already being treated for menopause at this clinic and is coming back for a check-up or medication review."
     category: "C"
     keywords: ["overgangsalder kontrol", "menopause follow-up"]
     doctor: "same_doctor"
@@ -601,13 +673,15 @@ conditions:
         - condition: "saw_LB"
           override_doctor: "LB"
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Incontinence (31-33) ---
 
   - id: 31
     name: "Incontinence — new referral"
+    description: "Patient is leaking urine, has bladder control problems, 'can't hold it', stress incontinence (leaks when coughing/sneezing). First visit."
     category: "C"
     keywords: ["inkontinens", "incontinence", "urinlækage", "urine leakage"]
     doctor: "LB"
@@ -620,11 +694,13 @@ conditions:
       condition: "always"
       test: "voiding diary"
       description: "Complete voiding diary for 3+ days before appointment. Bring morning urine sample."
-    questionnaire: "Urinary Problems / Incontinence"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem", "Urinary Problems / Incontinence"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 32
     name: "Incontinence — follow-up"
+    description: "Patient is already being treated for incontinence and is returning for a follow-up visit."
     category: "C"
     keywords: ["inkontinens kontrol", "incontinence follow-up"]
     doctor: "LB"
@@ -634,11 +710,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "Urinary Problems / Incontinence"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem", "Urinary Problems / Incontinence"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 33
     name: "Recurrent UTI"
+    description: "Patient keeps getting urinary tract infections repeatedly — 'keeps getting UTIs', 'recurrent UTI', 'tilbagevendende UVI'. Not a single UTI, but a pattern of recurring infections."
     category: "C"
     keywords: ["tilbagevendende UVI", "recurrent UTI", "gentagne urinvejsinfektioner", "urinary tract infection", "UTI", "urinvejsinfektion", "keeps getting UTI", "repeated UTI"]
     doctor: "LB"
@@ -648,13 +726,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Prolapse (34-36) ---
 
   - id: 34
     name: "Prolapse/cystocele/rectocele"
+    description: "Patient feels something bulging or falling down in the vaginal area, heaviness in the pelvis, 'something coming out'. New assessment for prolapse."
     category: "C"
     keywords: ["fremfald", "prolapse", "cystocele", "rectocele"]
     doctor: "LB"
@@ -664,11 +744,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 35
     name: "Prolapse ring — new"
+    description: "Patient needs a new pessary/support ring fitted for prolapse. They don't have one yet or need a completely new one."
     category: "C"
     keywords: ["pessar", "prolapse ring", "ny ring"]
     doctor: "LB"
@@ -678,11 +760,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 36
     name: "Prolapse ring — change/fitting"
+    description: "Patient already has a prolapse ring and needs it changed, adjusted, or refitted. Routine maintenance visit."
     category: "C"
     keywords: ["ring skift", "ring change", "ring tilpasning"]
     doctor: "LB"
@@ -692,13 +776,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Cervical (37-38) ---
 
   - id: 37
     name: "Cell changes (abnormal smear)"
+    description: "Patient has had an abnormal pap smear/cervical screening result and has been referred for further investigation. 'Celleforandringer', 'abnormal smear result'."
     category: "C"
     keywords: ["celleforandringer", "cell changes", "abnorm smear", "abnormal smear"]
     doctor: "LB"
@@ -708,11 +794,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "Cell Changes"
-    guidance: "Tissue samples from cervix"
+    questionnaires: ["Cell Changes"]
+    guidance_document: "Tissue samples from cervix"
+    self_pay_price_dkk: null
 
   - id: 38
     name: "Smear test (routine)"
+    description: "Patient wants a routine cervical screening / pap smear / celleprøve. No abnormal results, just a regular screening."
     category: "C"
     keywords: ["celleprøve", "smear test", "rutine celleprøve"]
     doctor: "LB"
@@ -722,13 +810,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: 950
 
   # --- PCOS (39-40) ---
 
   - id: 39
     name: "PCOS — new referral"
+    description: "Patient has been referred for polycystic ovary syndrome (PCOS) — may mention irregular periods, acne, weight gain, excess hair growth, or difficulty getting pregnant. First visit."
     category: "C"
     keywords: ["PCOS", "polycystisk", "polycystic"]
     doctor: "LB"
@@ -741,11 +831,13 @@ conditions:
       condition: "always"
       test: "PCOS blood panel on cycle day 3"
       description: "Blood panel on CD3. If no period, doctor may prescribe Provera."
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 40
     name: "PCOS — follow-up"
+    description: "Patient is already being treated for PCOS and is returning for a follow-up visit."
     category: "C"
     keywords: ["PCOS kontrol", "PCOS follow-up"]
     doctor: "LB"
@@ -755,13 +847,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Procedures (41-44) ---
 
   - id: 41
     name: "Hysteroscopy"
+    description: "Patient has been referred for a hysteroscopy — a procedure to look inside the uterus with a small camera. May say 'kikkertundersøgelse af livmoderen'."
     category: "C"
     keywords: ["hysteroskopi", "hysteroscopy"]
     doctor: "HS"
@@ -771,11 +865,13 @@ conditions:
     cycle_days: [4, 8]
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 42
     name: "Cystoscopy"
+    description: "Patient has been referred for a cystoscopy — a procedure to look inside the bladder with a small camera. 'I need my bladder checked', 'kikkertundersøgelse af blæren'."
     category: "C"
     keywords: ["cystoskopi", "cystoscopy"]
     doctor: "HS"
@@ -785,11 +881,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 43
     name: "Polyp removal (cervical)"
+    description: "Patient has a polyp on the cervix that needs to be removed. The polyp is on the cervix (neck of the womb), not inside the uterus."
     category: "C"
     keywords: ["polyp fjernelse cervikal", "cervical polyp removal", "polyp cervix"]
     doctor: "HS"
@@ -799,11 +897,13 @@ conditions:
     cycle_days: [5, 7]
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: "Removed polyp info"
+    questionnaires: null
+    guidance_document: "Removed polyp info"
+    self_pay_price_dkk: null
 
   - id: 44
     name: "Polyp removal (uterine)"
+    description: "Patient has a polyp inside the uterus (livmoderen) that needs to be removed. Requires hysteroscopic procedure."
     category: "C"
     keywords: ["polyp fjernelse uterin", "uterine polyp removal", "polyp livmoder"]
     doctor: "HS"
@@ -813,13 +913,15 @@ conditions:
     cycle_days: [4, 8]
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: "Removed polyp info"
+    questionnaires: null
+    guidance_document: "Removed polyp info"
+    self_pay_price_dkk: null
 
   # --- Skin (45-47) ---
 
   - id: 45
     name: "Lichen sclerosus — new"
+    description: "Patient has white patches, itching, or skin changes on the vulva and is being assessed for the first time. May mention 'hvide pletter', 'kløe i vulva'."
     category: "C"
     keywords: ["lichen sclerosus", "lichen ny"]
     doctor: "LB"
@@ -829,11 +931,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 46
     name: "Lichen sclerosus — follow-up with symptoms"
+    description: "Patient already has a lichen sclerosus diagnosis but still has symptoms — itching, pain, skin changes are not resolved. Needs a follow-up visit."
     category: "C"
     keywords: ["lichen kontrol symptomer", "lichen follow-up symptoms"]
     doctor: "LB"
@@ -843,11 +947,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 47
     name: "Lichen sclerosus — annual check"
+    description: "Patient has lichen sclerosus and is coming in for their routine yearly check-up. No active symptoms."
     category: "C"
     keywords: ["lichen årskontrol", "lichen annual check"]
     doctor: "LB"
@@ -857,13 +963,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Vulva/Vagina (48-50) ---
 
   - id: 48
     name: "Birth tear damage"
+    description: "Patient has damage from childbirth — perineal tear, scar tissue, pain or problems from a birth injury. 'Fødselsskade', 'tear from giving birth'."
     category: "C"
     keywords: ["fødselsskade", "birth tear", "fødselsbristning"]
     doctor: "LB"
@@ -873,11 +981,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 49
     name: "Vaginal opening issues"
+    description: "Patient has problems with vaginal tightness, narrowing, vaginismus (can't have intercourse), or pain at the vaginal opening. 'Trang skede', 'it hurts to have sex', 'can't insert anything'."
     category: "C"
     keywords: ["skede åbning", "vaginal opening", "indsnævring", "åbningen af skeden", "vaginismus", "vaginal tightness", "vaginal narrowing", "trang skede"]
     doctor: "LB"
@@ -887,11 +997,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 50
     name: "Itching/burning/discharge"
+    description: "Patient has vaginal itching, burning sensation, or unusual discharge. 'Kløe', 'svie', 'udflåd', 'it itches down there', 'unusual discharge'."
     category: "C"
     keywords: ["kløe", "itching", "svie", "burning", "udflåd", "discharge"]
     doctor: "LB"
@@ -901,13 +1013,15 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: "You & Your Gynaecological Problem"
-    guidance: null
+    questionnaires: ["You & Your Gynaecological Problem"]
+    guidance_document: null
+    self_pay_price_dkk: null
 
   # --- Other (51-53) ---
 
   - id: 51
     name: "Tamoxifen follow-up"
+    description: "Patient is taking Tamoxifen (breast cancer medication) and needs routine gynecological monitoring because Tamoxifen can affect the uterus."
     category: "C"
     keywords: ["tamoxifen", "tamoxifen kontrol"]
     doctor: "LB"
@@ -917,11 +1031,13 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 52
     name: "Second opinion"
+    description: "Patient wants another doctor's opinion on their condition or treatment plan. 'Anden mening', 'I want a second opinion'."
     category: "C"
     keywords: ["second opinion", "anden mening"]
     doctor: "HS"
@@ -936,11 +1052,13 @@ conditions:
         - condition: "fertility_related"
           override_doctor: "LB"
     lab: null
-    questionnaire: null
-    guidance: null
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null
 
   - id: 53
     name: "Fibroids"
+    description: "Patient has been referred for uterine fibroids (fibromer/myomer) — non-cancerous growths in the uterus that can cause heavy bleeding, pain, or pressure."
     category: "C"
     keywords: ["fibromer", "fibroids", "myomer"]
     doctor: "LB"
@@ -950,82 +1068,6 @@ conditions:
     cycle_days: null
     routing_question: null
     lab: null
-    questionnaire: null
-    guidance: null
-
-# -----------------------------------------------------------------------------
-# Section 3: cycle_rules
-# -----------------------------------------------------------------------------
-cycle_rules:
-  - procedure: "IUD insertion"
-    condition_ids: [19, 21, 23]
-    cycle_days: [3, 7]
-  - procedure: "PCOS blood panel"
-    condition_ids: [39]
-    cycle_days: [3, 3]
-  - procedure: "Follicle scanning"
-    condition_ids: [12]
-    cycle_days: [2, 4]
-  - procedure: "Hysteroscopy"
-    condition_ids: [41]
-    cycle_days: [4, 8]
-  - procedure: "Polyp removal (uterine)"
-    condition_ids: [44]
-    cycle_days: [4, 8]
-  - procedure: "Polyp removal (cervical)"
-    condition_ids: [43]
-    cycle_days: [5, 7]
-  - procedure: "HSU / fertility consult"
-    condition_ids: [13]
-    cycle_days: [6, 10]
-  - procedure: "Implant insertion"
-    condition_ids: [25]
-    cycle_days: [1, 5]
-  - procedure: "Endometriosis"
-    condition_ids: [18]
-    cycle_days: "just_before_next_period"
-
-# -----------------------------------------------------------------------------
-# Section 4: questionnaires
-# -----------------------------------------------------------------------------
-questionnaires:
-  "You & Your Gynaecological Problem":
-    applies_to: [27, 28, 45, 29, 39, 34, 35, 33, 48, 49, 50, 31, 32]
-  "Premenopausal Bleeding":
-    applies_to: [15, 9]
-  "Pelvic Pain":
-    applies_to: [18, 16, 17]
-  "Cell Changes":
-    applies_to: [37]
-  "Urinary Problems / Incontinence":
-    applies_to: [31, 32]
-  "Infertility Questionnaire (UXOR)":
-    applies_to: [10]
-  "Infertility Questionnaire (VIR)":
-    applies_to: [10]
-    target: "partner"
-
-# -----------------------------------------------------------------------------
-# Section 5: guidance_documents + self_pay_prices
-# -----------------------------------------------------------------------------
-guidance_documents:
-  "Kegleoperation":
-    applies_to: [8]
-  "Tissue samples from cervix":
-    applies_to: [37, 9]
-  "Removed polyp info":
-    applies_to: [43, 44]
-
-self_pay_prices:
-  - condition_id: 24
-    name: "Contraception counselling"
-    price_dkk: 1200
-  - condition_id: 38
-    name: "Smear test"
-    price_dkk: 950
-  - condition_id: 19
-    name: "IUD insertion"
-    price_dkk: 3500
-  - condition_id: 20
-    name: "IUD removal"
-    price_dkk: 1800
+    questionnaires: null
+    guidance_document: null
+    self_pay_price_dkk: null

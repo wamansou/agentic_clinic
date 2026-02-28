@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Chat{% endblock %}
+{% block nav_chat_active %}active{% endblock %}
+
+{% block content %}
+<!-- GDPR Consent Modal -->
+<div class="consent-overlay" id="consentOverlay" style="display: none;">
+    <div class="consent-card">
+        <div class="consent-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h2 class="consent-title">Data Processing Consent</h2>
+        <div class="consent-body">
+            <p>Before we begin, we need your consent to process personal data in accordance with the <strong>EU General Data Protection Regulation (GDPR)</strong>.</p>
+            <p>During this triage conversation, Kvinde Klinikken will collect and process:</p>
+            <ul>
+                <li><strong>Identification data</strong> &mdash; name and phone number</li>
+                <li><strong>Health data</strong> &mdash; symptoms, medical conditions, menstrual cycle information, and other health-related details you provide</li>
+                <li><strong>Insurance and referral status</strong></li>
+            </ul>
+            <p><strong>Purpose:</strong> To assess your medical needs, route you to the appropriate doctor, and prepare your appointment at Kvinde Klinikken.</p>
+            <p><strong>Legal basis:</strong> Your explicit consent (GDPR Art. 6(1)(a) and Art. 9(2)(a)) for processing of health data.</p>
+            <p><strong>AI processing:</strong> This conversation is conducted by an AI assistant. Your data is processed by OpenAI's language model to facilitate triage. No automated decisions are made without human oversight.</p>
+            <p><strong>Retention:</strong> Your data is retained for the duration necessary to complete the booking process and in accordance with Danish healthcare record-keeping requirements.</p>
+            <p><strong>Your rights:</strong> You may withdraw consent at any time, request access to your data, request deletion, or contact our Data Protection Officer at <strong>dpo@kvindeklinikken.dk</strong>.</p>
+        </div>
+        <div class="consent-actions">
+            <button class="btn btn-outline" id="consentDeclineBtn">Decline</button>
+            <button class="btn btn-primary" id="consentAcceptBtn">I Consent &amp; Continue</button>
+        </div>
+    </div>
+</div>
+
+<div class="chat-layout">
+    <!-- Left: Chat Panel -->
+    <div class="chat-panel">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <h2 class="chat-header-title">Patient Conversation</h2>
+                <span class="chat-session-id" id="sessionLabel">No active session</span>
+            </div>
+            <button class="btn btn-outline btn-sm" id="newSessionBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Session
+            </button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-empty" id="chatEmpty">
+                <div class="chat-empty-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <p>Start a new session to begin triaging a patient</p>
+                <button class="btn btn-primary" id="startBtn">Start New Session</button>
+            </div>
+        </div>
+
+        <div class="chat-input-area" id="chatInputArea" style="display: none;">
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <span></span><span></span><span></span>
+                Agent is thinking...
+            </div>
+            <form class="chat-form" id="chatForm">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type a message as the patient..." autocomplete="off">
+                <button type="submit" class="btn btn-primary btn-send" id="sendBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right: Triage Panel -->
+    <div class="triage-panel">
+        <div class="triage-card">
+            <div class="triage-card-header">
+                <h3>Triage Data</h3>
+                <span class="triage-status" id="triageStatus">Waiting</span>
+            </div>
+            <div class="triage-fields" id="triageFields">
+                <div class="triage-field" data-field="patient_name">
+                    <span class="triage-field-label">Patient</span>
+                    <span class="triage-field-value" id="tf-patient_name">—</span>
+                </div>
+                <div class="triage-field" data-field="phone_number">
+                    <span class="triage-field-label">Phone</span>
+                    <span class="triage-field-value" id="tf-phone_number">—</span>
+                </div>
+                <div class="triage-field" data-field="language">
+                    <span class="triage-field-label">Language</span>
+                    <span class="triage-field-value" id="tf-language">—</span>
+                </div>
+                <div class="triage-field" data-field="insurance_type">
+                    <span class="triage-field-label">Insurance</span>
+                    <span class="triage-field-value" id="tf-insurance_type">—</span>
+                </div>
+                <div class="triage-field" data-field="has_referral">
+                    <span class="triage-field-label">Referral</span>
+                    <span class="triage-field-value" id="tf-has_referral">—</span>
+                </div>
+                <div class="triage-divider"></div>
+                <div class="triage-field" data-field="condition_name">
+                    <span class="triage-field-label">Condition</span>
+                    <span class="triage-field-value" id="tf-condition_name">—</span>
+                </div>
+                <div class="triage-field" data-field="category">
+                    <span class="triage-field-label">Category</span>
+                    <span class="triage-field-value" id="tf-category">—</span>
+                </div>
+                <div class="triage-field" data-field="doctor">
+                    <span class="triage-field-label">Doctor</span>
+                    <span class="triage-field-value" id="tf-doctor">—</span>
+                </div>
+                <div class="triage-field" data-field="duration_minutes">
+                    <span class="triage-field-label">Duration</span>
+                    <span class="triage-field-value" id="tf-duration_minutes">—</span>
+                </div>
+                <div class="triage-field" data-field="priority_window">
+                    <span class="triage-field-label">Priority</span>
+                    <span class="triage-field-value" id="tf-priority_window">—</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Card (hidden until completion) -->
+        <div class="result-card" id="resultCard" style="display: none;">
+            <div class="result-card-header" id="resultCardHeader">
+                <h3 id="resultTitle">Result</h3>
+            </div>
+            <div class="result-card-body" id="resultCardBody"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/app.js"></script>
+{% endblock %}
