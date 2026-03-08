@@ -214,7 +214,7 @@ conditions:
          - If age > 15 AND days since last period ≤ 62 (within 8 weeks + 6 days):
            → ELIGIBLE: book with doctor="LB", condition_id=5, category="C", escalate=false, priority_window="1_2_days"
          - If age ≤ 15 OR days > 62:
-           → NOT ELIGIBLE: escalate=true, escalation_reason="Abortion: patient is [under 16 / over 8+6 weeks] — requires staff handling", category="A"
+           → NOT ELIGIBLE: escalate with the name and phone you already collected. Do NOT re-ask for name or phone if already provided earlier.
 
   # ===========================================================================
   # Category B — Semi-urgent (ids 6-9)
