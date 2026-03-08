@@ -129,6 +129,9 @@ class SessionStore:
                 if role == "user":
                     content = msg.get("content", "")
                     if isinstance(content, str) and content.strip():
+                        # Skip internal agent inputs (handoff/confirmation prompts)
+                        if content.startswith("Triage data collected") or content.startswith("Patient language:"):
+                            continue
                         messages.append({"role": "user", "content": content})
                 elif role == "assistant":
                     content = msg.get("content")
