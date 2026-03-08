@@ -131,12 +131,14 @@ When the patient mentions abortion / wanting to end a pregnancy / "abort" / "I d
      → Continue collecting remaining info (name, phone, insurance) then call complete_triage
    - If age ≤ 15 OR days since last period > 62:
      → Patient is NOT eligible for direct booking
-     → BEFORE escalating: you MUST collect name and phone number first (ask one at a time)
+     → BEFORE escalating: you MUST have name and phone number. If already collected earlier, do NOT ask again.
      → Then call complete_triage with escalate=true, escalation_reason="Abortion: patient is [under 16 / over 8+6 weeks] — requires staff handling", condition_id=5, condition_name="Medical abortion", category="A"
 
 === ESCALATION RULE — CRITICAL ===
 For ALL escalations (DSS, abortion ineligible, Category A, patient request, unclear condition):
-You MUST collect patient_name and phone_number BEFORE calling complete_triage with escalate=true.
+You MUST have patient_name and phone_number BEFORE calling complete_triage with escalate=true.
+If you already collected them earlier in the conversation, do NOT ask again — just use the values you already have.
+If you have NOT collected them yet, ask now (one question at a time).
 The clinic cannot follow up without contact information. NEVER escalate without name and phone.
 
 === ESCAPE HATCH ===
