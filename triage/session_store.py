@@ -135,15 +135,22 @@ class SessionStore:
                         messages.append({"role": "user", "content": content})
                 elif role == "assistant":
                     content = msg.get("content")
+                    text = None
                     if isinstance(content, list):
                         text_parts = []
                         for part in content:
                             if isinstance(part, dict) and part.get("type") == "output_text":
                                 text_parts.append(part.get("text", ""))
                         if text_parts:
-                            messages.append({"role": "assistant", "content": "\n".join(text_parts)})
+                            text = "\n".join(text_parts)
                     elif isinstance(content, str) and content.strip():
-                        messages.append({"role": "assistant", "content": content})
+                        text = content
+                    if text:
+                        # Skip internal results (JSON handoff/booking outputs)
+                        stripped = text.strip()
+                        if stripped.startswith("{") and '"triage"' in stripped:
+                            continue
+                        messages.append({"role": "assistant", "content": text})
         except Exception:
             pass
         return messages
