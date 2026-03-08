@@ -312,7 +312,18 @@
         let html = '';
         const result = data.result || {};
 
+        // Triage data section (common to both)
+        const triage = (result.triage) || {};
+        if (triage.patient_name) html += renderField('Patient', triage.patient_name);
+        if (triage.phone_number) html += renderField('Phone', triage.phone_number);
+        if (triage.insurance_type) html += renderField('Insurance', triage.insurance_type === 'public' ? 'Public (sygesikring)' : 'DSS / Private');
+        if (triage.condition_name) html += renderField('Condition', triage.condition_name);
+        if (triage.category) html += renderField('Category', CATEGORY_LABELS[triage.category] || triage.category);
+        if (triage.doctor) html += renderField('Doctor', DOCTOR_NAMES[triage.doctor] || triage.doctor);
+        if (triage.duration_minutes) html += renderField('Duration', triage.duration_minutes + ' min');
+
         if (isHandoff) {
+            html += '<div style="height:1px;background:var(--gray-200);margin:10px 0;"></div>';
             html += renderField('Reason', result.reason);
             html += renderField('Urgency', result.urgency);
             html += renderField('Summary', result.conversation_summary);
@@ -330,16 +341,15 @@
             if (result.provera_recommended) html += renderField('Provera', 'Recommended');
         }
 
-        // Confirmation message
-        if (data.confirmation) {
-            html += `<div class="result-confirmation">${escapeHtml(data.confirmation)}</div>`;
-        }
-
         resultCardBody.innerHTML = html;
 
-        // Add confirmation as agent message
-        if (data.confirmation) {
+        // Add confirmation as agent message (only for bookings, not handoffs)
+        if (!isHandoff && data.confirmation) {
             addMessage('agent', data.confirmation);
+        }
+        // For handoffs, show a friendly patient-facing message
+        if (isHandoff) {
+            addMessage('agent', 'Your case has been forwarded to our staff. Someone will contact you shortly at the phone number you provided.');
         }
 
         // Disable input
