@@ -95,6 +95,11 @@ def build_condition_reference() -> str:
         for c in by_cat[cat]:
             desc = c.get("description", c["name"])
             lines.append(f"  [{c['id']}] {c['name']}: {desc}")
+            if c.get("special_instructions"):
+                si_lines = c["special_instructions"].strip().split("\n")
+                lines.append(f"    ⚠ {si_lines[0]}")
+                for si_line in si_lines[1:]:
+                    lines.append(f"      {si_line}")
 
     lines.append("\n=== CONDITION GROUPS (ask clarifying question before assigning) ===")
     for group in GROUPS:

@@ -42,9 +42,10 @@
             const doctorDisplay = Array.isArray(c.doctor)
                 ? c.doctor.map(d => DOCTOR_LABELS[d] || d).join(', ')
                 : (DOCTOR_LABELS[c.doctor] || c.doctor || '—');
+            const hasRules = c.special_instructions ? ' <span title="Has special instructions" style="cursor:help;">⚠</span>' : '';
             return `<tr class="cond-row" data-id="${c.id}">
                 <td class="cond-id">${c.id}</td>
-                <td>${escapeHtml(c.name)}</td>
+                <td>${escapeHtml(c.name)}${hasRules}</td>
                 <td><span class="status-badge status-cat-${c.category}">${CATEGORY_LABELS[c.category] || c.category}</span></td>
                 <td>${doctorDisplay}</td>
                 <td>${c.duration ? c.duration + ' min' : '—'}</td>
@@ -95,6 +96,7 @@
         document.getElementById('cf-routing-question').value = c.routing_question || '';
         document.getElementById('cf-self-pay').value = c.self_pay_price_dkk || '';
         document.getElementById('cf-referral-required').checked = !!c.referral_required;
+        document.getElementById('cf-special-instructions').value = c.special_instructions || '';
     }
 
     function collectForm() {
@@ -109,6 +111,7 @@
             routing_question: document.getElementById('cf-routing-question').value.trim() || null,
             self_pay_price_dkk: parseFloat(document.getElementById('cf-self-pay').value) || null,
             referral_required: document.getElementById('cf-referral-required').checked,
+            special_instructions: document.getElementById('cf-special-instructions').value.trim() || null,
         };
 
         const cdRaw = document.getElementById('cf-cycle-days').value.trim();

@@ -102,6 +102,10 @@
                             <input type="checkbox" id="cf-referral-required"> Referral Required
                         </label>
                     </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label" for="cf-special-instructions">Special Instructions (agent rules for this condition)</label>
+                        <textarea class="form-input" id="cf-special-instructions" rows="4" placeholder="e.g. ROUTING: Ask age. If >45 → doctor=HS. If ≤45 → doctor=LB."></textarea>
+                    </div>
                 </div>
                 <div class="condition-form-actions">
                     <button type="button" class="btn btn-outline" id="editCancelBtn">Cancel</button>
@@ -114,5 +118,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/conditions.js?v=20260308b"></script>
+<script src="/static/js/conditions.js?v=20260308f"></script>
 {% endblock %}

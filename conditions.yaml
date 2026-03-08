@@ -188,6 +188,7 @@ conditions:
     questionnaires: null
     guidance_document: null
     self_pay_price_dkk: null
+    special_instructions: "DISAMBIGUATION: If the patient is PREGNANT and has bleeding/pain, this is condition [4] (Category A), NOT premenopausal bleeding [15]. Always prioritize pregnancy + bleeding as Category A."
 
   - id: 5
     name: "Medical abortion"
@@ -204,6 +205,16 @@ conditions:
     questionnaires: null
     guidance_document: null
     self_pay_price_dkk: null
+    special_instructions: |
+      ABORTION ELIGIBILITY CHECK — do NOT auto-escalate as Category A.
+      When patient mentions abortion:
+      1. Ask: "Are you over 15 years old?" (or "Er du over 15 år?")
+      2. Ask: "When did your last menstruation start?" (or "Hvornår startede din sidste menstruation?")
+      3. Calculate days since last period (using today's date).
+         - If age > 15 AND days since last period ≤ 62 (within 8 weeks + 6 days):
+           → ELIGIBLE: book with doctor="LB", condition_id=5, category="C", escalate=false, priority_window="1_2_days"
+         - If age ≤ 15 OR days > 62:
+           → NOT ELIGIBLE: escalate=true, escalation_reason="Abortion: patient is [under 16 / over 8+6 weeks] — requires staff handling", category="A"
 
   # ===========================================================================
   # Category B — Semi-urgent (ids 6-9)
@@ -240,6 +251,7 @@ conditions:
     questionnaires: null
     guidance_document: null
     self_pay_price_dkk: null
+    special_instructions: "DISAMBIGUATION: If patient mentions BOTH bleeding AND menopause/overgangsalder (especially age >50), this is postmenopausal bleeding [7] (Category B), NOT regular menopause [29]. Handle through normal booking, do NOT escalate as Category A."
 
   - id: 8
     name: "Cone biopsy/conisation"
@@ -391,6 +403,7 @@ conditions:
     questionnaires: ["Premenopausal Bleeding"]
     guidance_document: null
     self_pay_price_dkk: null
+    special_instructions: "ROUTING: Ask patient's age. If age > 45 → doctor=HS. If age ≤ 45 → doctor=LB. Store the age as patient_age."
 
   # --- Pain (16-17) ---
 
@@ -487,6 +500,7 @@ conditions:
     questionnaires: null
     guidance_document: null
     self_pay_price_dkk: 1800
+    special_instructions: "ROUTING: Ask about string visibility. If strings NOT visible → doctor=HS, duration=30, switch to condition [23] (hysteroscopic). If strings visible → doctor=LB."
 
   - id: 21
     name: "IUD replacement"
@@ -511,6 +525,7 @@ conditions:
     questionnaires: null
     guidance_document: null
     self_pay_price_dkk: null
+    special_instructions: "ROUTING: Ask about string visibility. If strings NOT visible → doctor=HS. If strings visible → doctor=LB."
 
   - id: 22
     name: "IUD removal — over 8 years old or no strings"
@@ -653,6 +668,7 @@ conditions:
     questionnaires: ["You & Your Gynaecological Problem"]
     guidance_document: null
     self_pay_price_dkk: null
+    special_instructions: "ROUTING: Ask if patient has been seen at the clinic before. If yes (previous patient) → doctor=HS. If no (new patient) → doctor=LB."
 
   - id: 30
     name: "Menopause — follow-up"
@@ -676,6 +692,7 @@ conditions:
     questionnaires: null
     guidance_document: null
     self_pay_price_dkk: null
+    special_instructions: "ROUTING: Ask which doctor they saw last time. Route to the same doctor (HS or LB)."
 
   # --- Incontinence (31-33) ---
 
@@ -1055,6 +1072,7 @@ conditions:
     questionnaires: null
     guidance_document: null
     self_pay_price_dkk: null
+    special_instructions: "ROUTING: Ask if the second opinion is related to fertility. If yes → doctor=LB. If no → doctor=HS."
 
   - id: 53
     name: "Fibroids"
