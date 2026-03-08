@@ -109,6 +109,42 @@ class SessionStore:
             return json.loads(row[0])
         return None
 
+    def get_conversation(self, session_id: str) -> list[dict]:
+        """Read conversation messages from the SDK's triage_sessions.db.
+        Returns chronological list of {role, content} dicts for user/assistant messages."""
+        sdk_db = str(Path(self.db_path).parent / "triage_sessions.db")
+        messages = []
+        try:
+            with sqlite3.connect(sdk_db) as conn:
+                rows = conn.execute(
+                    "SELECT message_data FROM agent_messages WHERE session_id = ? ORDER BY created_at ASC",
+                    (session_id,),
+                ).fetchall()
+            for (raw,) in rows:
+                try:
+                    msg = json.loads(raw)
+                except (json.JSONDecodeError, TypeError):
+                    continue
+                role = msg.get("role")
+                if role == "user":
+                    content = msg.get("content", "")
+                    if isinstance(content, str) and content.strip():
+                        messages.append({"role": "user", "content": content})
+                elif role == "assistant":
+                    content = msg.get("content")
+                    if isinstance(content, list):
+                        text_parts = []
+                        for part in content:
+                            if isinstance(part, dict) and part.get("type") == "output_text":
+                                text_parts.append(part.get("text", ""))
+                        if text_parts:
+                            messages.append({"role": "assistant", "content": "\n".join(text_parts)})
+                    elif isinstance(content, str) and content.strip():
+                        messages.append({"role": "assistant", "content": content})
+        except Exception:
+            pass
+        return messages
+
     def delete_inactive(self) -> int:
         """Delete all sessions with status 'active' (started but never completed). Returns count deleted."""
         with sqlite3.connect(self.db_path) as conn:

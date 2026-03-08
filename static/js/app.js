@@ -1,5 +1,5 @@
 /**
- * Kvinde Klinikken Triage — Chat UI Controller
+ * Gynækologerne Skensved og Bune Triage — Chat UI Controller
  * Manages WebSocket connection, message routing, and live triage panel updates.
  */
 
@@ -111,8 +111,11 @@
 
         chatInput.focus();
 
-        // Add multilingual welcome message
-        addMessage('agent', 'Welcome to Kvinde Klinikken. How can I help you today?\n\nVelkommen til Kvinde Klinikken. Hvordan kan jeg hjælpe dig i dag?\n\nЛаскаво просимо до Kvinde Klinikken. Чим я можу вам допомогти сьогодні?');
+        // Add subtle language hint
+        const langHint = document.createElement('div');
+        langHint.className = 'chat-lang-hint';
+        langHint.textContent = '\u{1F310} Supports: English \u00B7 Dansk \u00B7 \u0423\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0430';
+        chatMessages.appendChild(langHint);
     }
 
     // =========================================================================
@@ -246,7 +249,7 @@
         escalation_reason: null,
     };
 
-    const DOCTOR_NAMES = { HS: 'Dr. Skensved (HS)', LB: 'Dr. Bech (LB)' };
+    const DOCTOR_NAMES = { HS: 'Dr. Skensved (HS)', LB: 'Dr. Bune (LB)' };
     const CATEGORY_LABELS = { A: 'A — Urgent', B: 'B — Semi-urgent', C: 'C — Standard' };
 
     function formatFieldValue(key, value) {

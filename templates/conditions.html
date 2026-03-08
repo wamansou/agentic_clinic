@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Conditions{% endblock %}
+{% block nav_conditions_active %}active{% endblock %}
+
+{% block content %}
+<div class="conditions-page">
+    <div class="conditions-header">
+        <h2>Conditions Editor</h2>
+        <div class="conditions-header-actions">
+            <button class="btn btn-outline btn-sm" id="reloadBtn">Reload from YAML</button>
+            <button class="btn btn-primary btn-sm" id="addConditionBtn">+ Add Condition</button>
+        </div>
+    </div>
+
+    <div class="conditions-table-wrap">
+        <table class="conditions-table" id="conditionsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Doctor</th>
+                    <th>Duration</th>
+                    <th>Priority</th>
+                </tr>
+            </thead>
+            <tbody id="conditionsBody">
+                <tr><td colspan="6" style="text-align:center; padding:40px; color:var(--gray-400);">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal" style="display: none;">
+    <div class="modal-card" style="max-width: 700px;">
+        <div class="modal-header">
+            <h3 id="editModalTitle">Edit Condition</h3>
+            <button class="modal-close" id="editModalClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="conditionForm" class="condition-form">
+                <input type="hidden" id="cf-id">
+                <div class="cond-form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="cf-name">Name</label>
+                        <input type="text" class="form-input" id="cf-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-category">Category</label>
+                        <select class="form-input" id="cf-category">
+                            <option value="A">A - Urgent</option>
+                            <option value="B">B - Semi-urgent</option>
+                            <option value="C">C - Standard</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label" for="cf-description">Description</label>
+                        <textarea class="form-input" id="cf-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-doctor">Doctor</label>
+                        <select class="form-input" id="cf-doctor">
+                            <option value="">None</option>
+                            <option value="HS">HS (Dr. Skensved)</option>
+                            <option value="LB">LB (Dr. Bune)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-duration">Duration (min)</label>
+                        <input type="number" class="form-input" id="cf-duration" min="5" step="5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-priority">Priority</label>
+                        <select class="form-input" id="cf-priority">
+                            <option value="">None</option>
+                            <option value="same_day">Same day</option>
+                            <option value="1_2_days">1-2 days</option>
+                            <option value="1_week">1 week</option>
+                            <option value="2_weeks">2 weeks</option>
+                            <option value="4_weeks">4 weeks</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-keywords">Keywords (comma-separated)</label>
+                        <input type="text" class="form-input" id="cf-keywords">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-cycle-days">Cycle Days (e.g. 5,10)</label>
+                        <input type="text" class="form-input" id="cf-cycle-days" placeholder="e.g. 5,10 or just_before_next_period">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-routing-question">Routing Question</label>
+                        <input type="text" class="form-input" id="cf-routing-question">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-self-pay">Self-Pay Price (DKK)</label>
+                        <input type="number" class="form-input" id="cf-self-pay" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-referral-required">
+                            <input type="checkbox" id="cf-referral-required"> Referral Required
+                        </label>
+                    </div>
+                </div>
+                <div class="condition-form-actions">
+                    <button type="button" class="btn btn-outline" id="editCancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/conditions.js"></script>
+{% endblock %}

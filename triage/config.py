@@ -16,14 +16,61 @@ load_dotenv(PROJECT_DIR / ".env")
 MODEL = os.getenv("TRIAGE_MODEL", "gpt-4o")
 
 # =============================================================================
-# Load YAML Config
+# Load YAML Config (mutable — supports runtime reload)
 # =============================================================================
 
-with open(PROJECT_DIR / "conditions.yaml") as f:
-    CONFIG = yaml.safe_load(f)
+def _load_yaml():
+    with open(PROJECT_DIR / "conditions.yaml") as f:
+        return yaml.safe_load(f)
 
-CONDITIONS: dict[int, dict] = {c["id"]: c for c in CONFIG["conditions"]}
-GROUPS: list[dict] = CONFIG["condition_groups"]
+_CONFIG = _load_yaml()
+CONDITIONS: dict[int, dict] = {c["id"]: c for c in _CONFIG["conditions"]}
+GROUPS: list[dict] = _CONFIG["condition_groups"]
+
+
+def get_conditions() -> dict[int, dict]:
+    """Get the current conditions dict (supports dynamic reload)."""
+    return CONDITIONS
+
+
+def get_condition_reference() -> str:
+    """Get the current condition reference string (supports dynamic reload)."""
+    return CONDITION_REFERENCE
+
+
+def reload_conditions():
+    """Reload conditions from YAML and rebuild the reference. No server restart needed."""
+    global _CONFIG, CONDITIONS, GROUPS, CONDITION_REFERENCE
+    _CONFIG = _load_yaml()
+    CONDITIONS.clear()
+    CONDITIONS.update({c["id"]: c for c in _CONFIG["conditions"]})
+    GROUPS.clear()
+    GROUPS.extend(_CONFIG["condition_groups"])
+    CONDITION_REFERENCE = build_condition_reference()
+
+
+def save_conditions():
+    """Save current config back to YAML."""
+    with open(PROJECT_DIR / "conditions.yaml", "w") as f:
+        yaml.dump(_CONFIG, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+
+
+def update_condition(condition_id: int, data: dict):
+    """Update a single condition in the config and save."""
+    for i, c in enumerate(_CONFIG["conditions"]):
+        if c["id"] == condition_id:
+            _CONFIG["conditions"][i].update(data)
+            _CONFIG["conditions"][i]["id"] = condition_id  # preserve id
+            break
+    save_conditions()
+    reload_conditions()
+
+
+def add_condition(data: dict):
+    """Add a new condition to the config and save."""
+    _CONFIG["conditions"].append(data)
+    save_conditions()
+    reload_conditions()
 
 
 # =============================================================================
@@ -40,7 +87,7 @@ def build_condition_reference() -> str:
         "C": "CATEGORY C (Standard)",
     }
     by_cat: dict[str, list] = {"A": [], "B": [], "C": []}
-    for cond in CONFIG["conditions"]:
+    for cond in _CONFIG["conditions"]:
         by_cat[cond["category"]].append(cond)
 
     for cat in ("A", "B", "C"):

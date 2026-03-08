@@ -194,7 +194,7 @@ conditions:
     description: "Patient wants to end a pregnancy, needs an abortion, wants to terminate. May say 'abort', 'I don't want to keep it', 'end the pregnancy'."
     category: "A"
     keywords: ["abort", "abortion", "medicinsk abort"]
-    doctor: null
+    doctor: "LB"
     duration: null
     priority: "1_2_days"
     referral_required: false
@@ -214,7 +214,7 @@ conditions:
     description: "Patient's GP has sent an urgent cancer referral (kræftpakke). The patient has a letter or was told by their GP they are being referred under the cancer fast-track pathway."
     category: "B"
     keywords: ["kræftpakke", "cancer package", "cancer referral"]
-    doctor: ["HS", "LB"]
+    doctor: "LB"
     duration: 30
     priority: "1_week"
     referral_required: true

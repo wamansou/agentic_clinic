@@ -6,7 +6,7 @@ import uuid
 from pydantic import ValidationError
 from agents import Runner, SQLiteSession
 
-from triage.config import CONDITIONS, DB_DIR
+from triage.config import get_conditions, DB_DIR
 from triage.models import TriageData, BookingRequest, HandoffRequest
 from triage.tools import (
     calculate_cycle_window,
@@ -44,7 +44,7 @@ def enrich_booking(triage: TriageData) -> BookingRequest:
     if not triage.condition_id:
         return booking
 
-    cond = CONDITIONS.get(triage.condition_id)
+    cond = get_conditions().get(triage.condition_id)
     if not cond:
         return booking
 
@@ -106,9 +106,6 @@ def build_confirmation_context(triage: TriageData, booking: BookingRequest) -> s
 
     if triage.condition_name:
         parts.append(f"Condition: {triage.condition_name}")
-    if triage.doctor:
-        doctor_name = "Dr. Skensved" if triage.doctor == "HS" else "Dr. Bech"
-        parts.append(f"Doctor: {doctor_name}")
     if booking.cycle_dependent and booking.valid_booking_window:
         parts.append(f"Timing: {booking.valid_booking_window}")
     if booking.provera_recommended:

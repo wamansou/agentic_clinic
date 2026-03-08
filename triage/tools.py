@@ -7,7 +7,7 @@ from agents import function_tool
 from agents.agent import ToolsToFinalOutputResult
 from agents.tool import FunctionToolResult
 
-from triage.config import CONDITIONS
+from triage.config import get_conditions
 from triage.models import TriageData
 
 
@@ -16,7 +16,7 @@ from triage.models import TriageData
 # =============================================================================
 
 def get_condition_details(condition_id: int) -> str:
-    cond = CONDITIONS.get(condition_id)
+    cond = get_conditions().get(condition_id)
     if not cond:
         return json.dumps({"error": f"Condition {condition_id} not found"})
     return json.dumps(cond, indent=2, ensure_ascii=False)
@@ -30,7 +30,7 @@ def calculate_cycle_window(
     cycle_range_max: int | None = None,
     no_cycle: bool = False,
 ) -> str:
-    cond = CONDITIONS.get(condition_id)
+    cond = get_conditions().get(condition_id)
     if not cond or not cond.get("cycle_days"):
         return json.dumps({"cycle_dependent": False, "message": "No cycle constraint for this procedure."})
 
@@ -92,7 +92,7 @@ def calculate_cycle_window(
 
 
 def get_lab_requirements(condition_id: int, patient_age: int | None = None) -> str:
-    cond = CONDITIONS.get(condition_id)
+    cond = get_conditions().get(condition_id)
     if not cond or not cond.get("lab"):
         return json.dumps({"lab_required": False})
 
@@ -113,7 +113,7 @@ def get_lab_requirements(condition_id: int, patient_age: int | None = None) -> s
 
 
 def get_questionnaire(condition_id: int) -> str:
-    cond = CONDITIONS.get(condition_id)
+    cond = get_conditions().get(condition_id)
     if not cond:
         return json.dumps({"questionnaires": [], "message": "Condition not found."})
 
@@ -128,14 +128,14 @@ def get_questionnaire(condition_id: int) -> str:
 
 
 def get_guidance_document(condition_id: int) -> str:
-    cond = CONDITIONS.get(condition_id)
+    cond = get_conditions().get(condition_id)
     if cond and cond.get("guidance_document"):
         return json.dumps({"document": cond["guidance_document"]})
     return json.dumps({"document": None, "message": "No guidance document for this condition."})
 
 
 def get_self_pay_price(condition_id: int) -> str:
-    cond = CONDITIONS.get(condition_id)
+    cond = get_conditions().get(condition_id)
     if cond and cond.get("self_pay_price_dkk"):
         return json.dumps({"condition_id": condition_id, "name": cond["name"], "price_dkk": cond["self_pay_price_dkk"]}, ensure_ascii=False)
     return json.dumps({"price_dkk": None, "message": "Price not yet available. Staff will confirm the cost."})

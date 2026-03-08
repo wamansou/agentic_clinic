@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from triage.config import PROJECT_DIR, DB_DIR
+from triage.config import PROJECT_DIR, DB_DIR, get_conditions, reload_conditions, update_condition, add_condition
 from triage.auth import login_required, handle_login, handle_logout, get_current_user
 from triage.session_store import SessionStore
 from triage.orchestrator import run_agent_turn
@@ -19,7 +19,7 @@ from triage.orchestrator import run_agent_turn
 # App Setup
 # =============================================================================
 
-app = FastAPI(title="Kvinde Klinikken Triage", docs_url=None, redoc_url=None)
+app = FastAPI(title="Gynækologerne Skensved og Bune Triage", docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory=str(PROJECT_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(PROJECT_DIR / "templates"))
 
@@ -88,6 +88,12 @@ async def history_page(request: Request):
     })
 
 
+@app.get("/conditions", response_class=HTMLResponse)
+async def conditions_page(request: Request):
+    user = get_current_user(request)
+    return templates.TemplateResponse("conditions.html", {"request": request, "user": user})
+
+
 # =============================================================================
 # API Routes
 # =============================================================================
@@ -110,6 +116,7 @@ async def api_get_session(session_id: str):
         return JSONResponse({"error": "not found"}, status_code=404)
     result = store.get_result(session_id)
     session["result"] = result
+    session["conversation"] = store.get_conversation(session_id)
     return session
 
 
@@ -118,6 +125,50 @@ async def api_create_session():
     session_id = f"demo_{uuid.uuid4().hex[:8]}"
     meta = store.create_session(session_id)
     return {"session_id": meta.session_id, "created_at": meta.created_at.isoformat()}
+
+
+@app.get("/api/conditions")
+async def api_list_conditions():
+    conditions = get_conditions()
+    return sorted(conditions.values(), key=lambda c: c["id"])
+
+
+@app.get("/api/conditions/{condition_id}")
+async def api_get_condition(condition_id: int):
+    conditions = get_conditions()
+    cond = conditions.get(condition_id)
+    if not cond:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return cond
+
+
+@app.put("/api/conditions/{condition_id}")
+async def api_update_condition(condition_id: int, request: Request):
+    conditions = get_conditions()
+    if condition_id not in conditions:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "not found"}, status_code=404)
+    data = await request.json()
+    data.pop("id", None)
+    update_condition(condition_id, data)
+    return get_conditions()[condition_id]
+
+
+@app.post("/api/conditions")
+async def api_create_condition(request: Request):
+    data = await request.json()
+    if "id" not in data:
+        conditions = get_conditions()
+        data["id"] = max(conditions.keys()) + 1 if conditions else 1
+    add_condition(data)
+    return get_conditions()[data["id"]]
+
+
+@app.post("/api/conditions/reload")
+async def api_reload_conditions():
+    reload_conditions()
+    return {"status": "ok", "count": len(get_conditions())}
 
 
 @app.delete("/api/sessions/inactive")

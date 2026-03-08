@@ -98,6 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += `<div class="detail-item"><span class="detail-label">Created</span><span class="detail-value">${data.created_at}</span></div>`;
                 html += '</div>';
 
+                if (data.conversation && data.conversation.length > 0) {
+                    html += '<div class="detail-result"><h4>Conversation</h4><div class="conversation-display">';
+                    for (const msg of data.conversation) {
+                        const role = msg.role === 'user' ? 'patient' : 'agent';
+                        const escaped = msg.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                        html += `<div class="conv-msg conv-msg-${role}"><div class="conv-bubble conv-bubble-${role}">${escaped}</div></div>`;
+                    }
+                    html += '</div></div>';
+                }
+
                 if (data.result) {
                     html += '<div class="detail-result"><h4>Result</h4><pre class="detail-json">' + JSON.stringify(data.result, null, 2) + '</pre></div>';
                 }
