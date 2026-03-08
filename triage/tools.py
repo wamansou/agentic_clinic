@@ -117,17 +117,13 @@ def get_questionnaire(condition_id: int) -> str:
     if not cond:
         return json.dumps({"questionnaires": [], "message": "Condition not found."})
 
-    from triage.config import _CONFIG
-    links = _CONFIG.get("questionnaire_links", {})
-
     result = {"questionnaires": []}
     if cond.get("questionnaires"):
-        result["questionnaires"] = [
-            {"name": q, "link": links.get(q)} for q in cond["questionnaires"]
-        ]
-    if cond.get("partner_questionnaire"):
-        pq = cond["partner_questionnaire"]
-        result["partner_questionnaire"] = {"name": pq, "link": links.get(pq)}
+        for q in cond["questionnaires"]:
+            if isinstance(q, dict):
+                result["questionnaires"].append({"name": q.get("name", ""), "link": q.get("link")})
+            else:
+                result["questionnaires"].append({"name": q, "link": None})
     if not result["questionnaires"]:
         result["message"] = "No questionnaire required for this condition."
     return json.dumps(result, ensure_ascii=False)

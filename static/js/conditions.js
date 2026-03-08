@@ -95,13 +95,47 @@
         document.getElementById('cf-cycle-days').value = cd ? (Array.isArray(cd) ? cd.join(',') : cd) : '';
         document.getElementById('cf-routing-question').value = c.routing_question || '';
         document.getElementById('cf-self-pay').value = c.self_pay_price_dkk || '';
-        document.getElementById('cf-questionnaires').value = (c.questionnaires || []).join(', ');
-        document.getElementById('cf-partner-questionnaire').value = c.partner_questionnaire || '';
         document.getElementById('cf-referral-required').checked = !!c.referral_required;
         document.getElementById('cf-special-instructions').value = c.special_instructions || '';
+        renderQuestionnaires(c.questionnaires || []);
+    }
+
+    function renderQuestionnaires(questionnaires) {
+        const container = document.getElementById('cf-questionnaires-list');
+        container.innerHTML = '';
+        questionnaires.forEach((q, i) => {
+            const name = typeof q === 'string' ? q : (q.name || '');
+            const link = typeof q === 'string' ? '' : (q.link || '');
+            addQuestionnaireRow(container, name, link);
+        });
+    }
+
+    function addQuestionnaireRow(container, name, link) {
+        const row = document.createElement('div');
+        row.className = 'questionnaire-row';
+        row.innerHTML = `
+            <input type="text" class="form-input q-name" placeholder="Questionnaire name" value="${escapeAttr(name)}">
+            <input type="text" class="form-input q-link" placeholder="Link URL" value="${escapeAttr(link)}">
+            <button type="button" class="btn btn-outline btn-sm q-remove" title="Remove">&times;</button>
+        `;
+        row.querySelector('.q-remove').addEventListener('click', () => row.remove());
+        container.appendChild(row);
+    }
+
+    function escapeAttr(text) {
+        return text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     }
 
     function collectForm() {
+        const questionnaires = [];
+        document.querySelectorAll('#cf-questionnaires-list .questionnaire-row').forEach(row => {
+            const name = row.querySelector('.q-name').value.trim();
+            if (name) {
+                const link = row.querySelector('.q-link').value.trim() || null;
+                questionnaires.push({ name, link });
+            }
+        });
+
         const data = {
             name: document.getElementById('cf-name').value.trim(),
             description: document.getElementById('cf-description').value.trim(),
@@ -112,8 +146,7 @@
             keywords: document.getElementById('cf-keywords').value.split(',').map(s => s.trim()).filter(Boolean),
             routing_question: document.getElementById('cf-routing-question').value.trim() || null,
             self_pay_price_dkk: parseFloat(document.getElementById('cf-self-pay').value) || null,
-            questionnaires: document.getElementById('cf-questionnaires').value.split(',').map(s => s.trim()).filter(Boolean).length ? document.getElementById('cf-questionnaires').value.split(',').map(s => s.trim()).filter(Boolean) : null,
-            partner_questionnaire: document.getElementById('cf-partner-questionnaire').value.trim() || null,
+            questionnaires: questionnaires.length ? questionnaires : null,
             referral_required: document.getElementById('cf-referral-required').checked,
             special_instructions: document.getElementById('cf-special-instructions').value.trim() || null,
         };
@@ -176,6 +209,9 @@
     editModalClose.addEventListener('click', () => { editModal.style.display = 'none'; });
     editCancelBtn.addEventListener('click', () => { editModal.style.display = 'none'; });
     editModal.addEventListener('click', (e) => { if (e.target === editModal) editModal.style.display = 'none'; });
+    document.getElementById('addQuestionnaireBtn').addEventListener('click', () => {
+        addQuestionnaireRow(document.getElementById('cf-questionnaires-list'), '', '');
+    });
 
     function escapeHtml(text) {
         const div = document.createElement('div');

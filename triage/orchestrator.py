@@ -84,15 +84,6 @@ def enrich_booking(triage: TriageData) -> BookingRequest:
             else:
                 parts.append(q["name"])
         booking.questionnaire = ", ".join(parts)
-    if q_result.get("partner_questionnaire"):
-        pq = q_result["partner_questionnaire"]
-        if isinstance(pq, dict):
-            if pq.get("link"):
-                booking.partner_questionnaire = f"{pq['name']} — {pq['link']}"
-            else:
-                booking.partner_questionnaire = pq["name"]
-        else:
-            booking.partner_questionnaire = pq
 
     # Guidance document
     g_result = json.loads(get_guidance_document(triage.condition_id))
@@ -127,8 +118,6 @@ def build_confirmation_context(triage: TriageData, booking: BookingRequest) -> s
         parts.append(f"Lab required: {booking.lab_details}")
     if booking.questionnaire:
         parts.append(f"Questionnaire to complete: {booking.questionnaire}")
-    if booking.partner_questionnaire:
-        parts.append(f"Partner questionnaire: {booking.partner_questionnaire}")
     if booking.guidance_document:
         parts.append(f"Guidance document: {booking.guidance_document}")
     if booking.self_pay:
