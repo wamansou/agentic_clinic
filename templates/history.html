@@ -109,7 +109,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (data.result) {
-                    html += '<div class="detail-result"><h4>Result</h4><pre class="detail-json">' + JSON.stringify(data.result, null, 2) + '</pre></div>';
+                    const r = data.result;
+                    const t = r.triage || {};
+                    const isHandoff = !!r.reason;
+                    const DOCTORS = { HS: 'Dr. Skensved (HS)', LB: 'Dr. Bune (LB)' };
+                    const CATS = { A: 'A — Urgent', B: 'B — Semi-urgent', C: 'C — Standard' };
+                    const field = (label, val) => val ? `<div class="result-field"><span class="result-field-label">${label}</span><span class="result-field-value">${String(val).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span></div>` : '';
+
+                    html += '<div class="detail-result"><h4>' + (isHandoff ? 'Staff Handoff' : 'Booking Result') + '</h4>';
+                    html += field('Patient', t.patient_name);
+                    html += field('Phone', t.phone_number);
+                    html += field('Insurance', t.insurance_type === 'public' ? 'Public (sygesikring)' : t.insurance_type === 'dss' ? 'DSS / Private' : t.insurance_type);
+                    html += field('Condition', t.condition_name);
+                    html += field('Category', CATS[t.category] || t.category);
+                    html += field('Doctor', DOCTORS[t.doctor] || t.doctor);
+                    if (t.duration_minutes) html += field('Duration', t.duration_minutes + ' min');
+                    if (t.priority_window) html += field('Priority', t.priority_window);
+                    if (t.patient_age) html += field('Age', t.patient_age);
+                    if (t.last_period_date) html += field('Last Period', t.last_period_date);
+
+                    if (isHandoff) {
+                        html += '<div style="height:1px;background:var(--gray-200);margin:10px 0;"></div>';
+                        html += field('Reason', r.reason);
+                        html += field('Urgency', r.urgency);
+                        html += field('Summary', r.conversation_summary);
+                        if (r.suggested_action) html += field('Suggested Action', r.suggested_action);
+                    } else {
+                        if (r.cycle_dependent) html += field('Cycle Dependent', 'Yes');
+                        if (r.valid_booking_window) html += field('Booking Window', r.valid_booking_window);
+                        if (r.lab_required) html += field('Lab Required', r.lab_details || 'Yes');
+                        if (r.questionnaire) html += field('Questionnaire', r.questionnaire);
+                        if (r.partner_questionnaire) html += field('Partner Quest.', r.partner_questionnaire);
+                        if (r.guidance_document) html += field('Guidance Doc', r.guidance_document);
+                        if (r.self_pay) html += field('Self-Pay', r.self_pay_price_dkk ? r.self_pay_price_dkk + ' DKK' : 'Yes');
+                        if (r.provera_recommended) html += field('Provera', 'Recommended');
+                    }
+                    html += '</div>';
                 }
                 modalBody.innerHTML = html;
             } catch (e) {
