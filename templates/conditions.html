@@ -89,9 +89,10 @@
                         <label class="form-label" for="cf-cycle-days">Cycle Days (e.g. 5,10)</label>
                         <input type="text" class="form-input" id="cf-cycle-days" placeholder="e.g. 5,10 or just_before_next_period">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="cf-routing-question">Routing Question</label>
-                        <input type="text" class="form-input" id="cf-routing-question">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label">Condition-Specific Questions</label>
+                        <div id="cf-questions-list" class="questions-list"></div>
+                        <button type="button" class="btn btn-outline btn-sm" id="addQuestionBtn" style="margin-top: 6px;">+ Add Question</button>
                     </div>
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label class="form-label">Questionnaires</label>
@@ -123,5 +124,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/conditions.js?v=20260308h"></script>
+<script src="/static/js/conditions.js?v=20260308i"></script>
 {% endblock %}

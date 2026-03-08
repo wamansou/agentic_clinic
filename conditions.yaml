@@ -157,11 +157,11 @@ conditions:
   priority: same_day
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 2
   name: Sudden severe pain
   description: Patient has sudden, acute onset of severe pain — can't stand up, worst
@@ -177,11 +177,11 @@ conditions:
   priority: same_day
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 3
   name: Suspected ectopic pregnancy
   description: Patient is pregnant AND has sharp/one-sided abdominal pain, possibly
@@ -197,11 +197,11 @@ conditions:
   priority: same_day
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 4
   name: Pregnancy with bleeding/pain (1st trimester)
   description: Patient is pregnant (or just found out) and is experiencing bleeding
@@ -221,7 +221,6 @@ conditions:
   priority: same_day
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
@@ -229,6 +228,7 @@ conditions:
   special_instructions: 'DISAMBIGUATION: If the patient is PREGNANT and has bleeding/pain,
     this is condition [4] (Category A), NOT premenopausal bleeding [15]. Always prioritize
     pregnancy + bleeding as Category A.'
+  questions: null
 - id: 5
   name: Medical abortion
   description: Patient wants to end a pregnancy, needs an abortion, wants to terminate.
@@ -243,7 +243,6 @@ conditions:
   priority: 1_2_days
   referral_required: false
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
@@ -257,6 +256,7 @@ conditions:
     \ category=\"C\", escalate=false, priority_window=\"1_2_days\"\n   - If age ≤\
     \ 15 OR days > 62:\n     → NOT ELIGIBLE: escalate with the name and phone you\
     \ already collected. Do NOT re-ask for name or phone if already provided earlier.\n"
+  questions: null
 - id: 6
   name: Cancer package referral
   description: Patient's GP has sent an urgent cancer referral (kræftpakke). The patient
@@ -272,11 +272,11 @@ conditions:
   priority: 1_week
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 7
   name: Postmenopausal bleeding
   description: Woman who has gone through menopause (periods stopped for 12+ months)
@@ -295,7 +295,6 @@ conditions:
   priority: 1_week
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
@@ -303,6 +302,7 @@ conditions:
   special_instructions: 'DISAMBIGUATION: If patient mentions BOTH bleeding AND menopause/overgangsalder
     (especially age >50), this is postmenopausal bleeding [7] (Category B), NOT regular
     menopause [29]. Handle through normal booking, do NOT escalate as Category A.'
+  questions: null
 - id: 8
   name: Cone biopsy/conisation
   description: Patient has been referred for a cone biopsy (keglesnit) to remove a
@@ -318,11 +318,11 @@ conditions:
   priority: 14_days
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: Kegleoperation
   self_pay_price_dkk: null
+  questions: null
 - id: 9
   name: Contact bleeding (cervical)
   description: Patient bleeds after sexual intercourse or during sex. 'Bleeding after
@@ -341,13 +341,13 @@ conditions:
   priority: 14_days
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: Premenopausal Bleeding
     link: https://forms.gynaeskensved.dk/premenopausal-bleeding
   guidance_document: Tissue samples from cervix
   self_pay_price_dkk: null
+  questions: null
 - id: 10
   name: Initial fertility consultation
   description: Patient is trying to get pregnant but hasn't succeeded. 'Can't get
@@ -364,7 +364,6 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab:
     condition: always
     tests:
@@ -380,6 +379,7 @@ conditions:
     link: https://forms.gynaeskensved.dk/infertility-vir
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 11
   name: Insemination
   description: Patient is already in fertility treatment and needs an insemination
@@ -393,11 +393,11 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 12
   name: Follicle scanning
   description: Patient needs follicle monitoring as part of fertility treatment —
@@ -414,11 +414,11 @@ conditions:
   cycle_days:
   - 2
   - 4
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 13
   name: HSU (tube exam)
   description: Patient needs a fallopian tube examination (HSU / æggelederundersøgelse)
@@ -435,11 +435,11 @@ conditions:
   cycle_days:
   - 6
   - 10
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 14
   name: Pregnancy scan without symptoms
   description: Patient thinks they might be pregnant, wants to confirm pregnancy,
@@ -455,11 +455,11 @@ conditions:
   priority: 1_week
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 15
   name: Premenopausal bleeding
   description: Patient has irregular bleeding, heavy periods, bleeding between periods,
@@ -476,12 +476,6 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question:
-    trigger: age
-    question: May I ask your age?
-    rules:
-    - condition: age > 45
-      override_doctor: HS
   lab: null
   questionnaires:
   - name: Premenopausal Bleeding
@@ -490,6 +484,12 @@ conditions:
   self_pay_price_dkk: null
   special_instructions: 'ROUTING: Ask patient''s age. If age > 45 → doctor=HS. If
     age ≤ 45 → doctor=LB. Store the age as patient_age.'
+  questions:
+    trigger: age
+    question: May I ask your age?
+    rules:
+    - condition: age > 45
+      override_doctor: HS
 - id: 16
   name: Pelvic pain/dyspareunia
   description: Patient has chronic pelvic pain, lower abdominal pain, or pain during
@@ -507,13 +507,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: Pelvic Pain
     link: https://forms.gynaeskensved.dk/pelvic-pain
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 17
   name: Menstrual pain (possible endometriosis)
   description: Patient has severe menstrual cramps, painful periods, 'period cramps',
@@ -529,13 +529,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: Pelvic Pain
     link: https://forms.gynaeskensved.dk/pelvic-pain
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 18
   name: Endometriosis — new referral
   description: Patient has been referred specifically for endometriosis assessment.
@@ -550,13 +550,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: just_before_next_period
-  routing_question: null
   lab: null
   questionnaires:
   - name: Pelvic Pain
     link: https://forms.gynaeskensved.dk/pelvic-pain
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 19
   name: IUD insertion
   description: Patient wants a new IUD (spiral) put in. First-time IUD or new one
@@ -574,7 +574,6 @@ conditions:
   cycle_days:
   - 3
   - 7
-  routing_question: null
   lab:
     condition: age_under_30
     test: chlamydia
@@ -582,6 +581,7 @@ conditions:
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: 3500
+  questions: null
 - id: 20
   name: IUD removal — standard (strings visible)
   description: Patient wants their IUD (spiral) taken out. The strings are visible/accessible.
@@ -596,14 +596,6 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question:
-    trigger: strings
-    question: Can the strings usually be seen at your check-ups?
-    rules:
-    - condition: strings_not_visible
-      override_doctor: HS
-      override_duration: 30
-      override_condition_id: 23
   lab: null
   questionnaires: null
   guidance_document: null
@@ -611,6 +603,14 @@ conditions:
   special_instructions: 'ROUTING: Ask about string visibility. If strings NOT visible
     → doctor=HS, duration=30, switch to condition [23] (hysteroscopic). If strings
     visible → doctor=LB.'
+  questions:
+    trigger: strings
+    question: Can the strings usually be seen at your check-ups?
+    rules:
+    - condition: strings_not_visible
+      override_doctor: HS
+      override_duration: 30
+      override_condition_id: 23
 - id: 21
   name: IUD replacement
   description: Patient wants to swap their current IUD for a new one — removal and
@@ -627,12 +627,6 @@ conditions:
   cycle_days:
   - 3
   - 7
-  routing_question:
-    trigger: strings
-    question: Can the strings usually be seen at your check-ups?
-    rules:
-    - condition: strings_not_visible
-      override_doctor: HS
   lab:
     condition: age_under_30
     test: chlamydia
@@ -642,6 +636,12 @@ conditions:
   self_pay_price_dkk: null
   special_instructions: 'ROUTING: Ask about string visibility. If strings NOT visible
     → doctor=HS. If strings visible → doctor=LB.'
+  questions:
+    trigger: strings
+    question: Can the strings usually be seen at your check-ups?
+    rules:
+    - condition: strings_not_visible
+      override_doctor: HS
 - id: 22
   name: IUD removal — over 8 years old or no strings
   description: Patient's IUD has been in for over 8 years, or the strings cannot be
@@ -656,11 +656,11 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 23
   name: Hysteroscopic IUD removal/insertion (no visible strings)
   description: IUD procedure that requires a hysteroscope — typically because the
@@ -676,11 +676,11 @@ conditions:
   cycle_days:
   - 4
   - 8
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 24
   name: Contraception counselling
   description: Patient wants advice about birth control options — pills, IUD, implant,
@@ -696,11 +696,11 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: 1200
+  questions: null
 - id: 25
   name: Implant insertion
   description: Patient wants a contraceptive implant (p-stav) put in their arm.
@@ -715,11 +715,11 @@ conditions:
   cycle_days:
   - 1
   - 5
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 26
   name: Implant removal
   description: Patient wants their contraceptive implant (p-stav) removed from their
@@ -733,11 +733,11 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 27
   name: Ovarian cysts
   description: Patient has been referred for an ovarian cyst — a cyst on the ovary
@@ -752,13 +752,13 @@ conditions:
   priority: 1_month
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 28
   name: Vulva/vaginal cysts
   description: Patient has a cyst on the vulva or in the vaginal area, such as a Bartholin's
@@ -773,13 +773,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 29
   name: Menopause — new referral
   description: Patient has menopause symptoms — hot flashes, night sweats, mood changes,
@@ -795,12 +795,6 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question:
-    trigger: history
-    question: Have you previously been seen by Dr. Skensved at our clinic?
-    rules:
-    - condition: no_previous_hs
-      override_doctor: LB
   lab:
     condition: age_under_45
     test: menopause blood panel
@@ -812,6 +806,12 @@ conditions:
   self_pay_price_dkk: null
   special_instructions: 'ROUTING: Ask if patient has been seen at the clinic before.
     If yes (previous patient) → doctor=HS. If no (new patient) → doctor=LB.'
+  questions:
+    trigger: history
+    question: Have you previously been seen by Dr. Skensved at our clinic?
+    rules:
+    - condition: no_previous_hs
+      override_doctor: LB
 - id: 30
   name: Menopause — follow-up
   description: Patient is already being treated for menopause at this clinic and is
@@ -825,7 +825,13 @@ conditions:
   priority: standard
   referral_required: false
   cycle_days: null
-  routing_question:
+  lab: null
+  questionnaires: null
+  guidance_document: null
+  self_pay_price_dkk: null
+  special_instructions: 'ROUTING: Ask which doctor they saw last time. Route to the
+    same doctor (HS or LB).'
+  questions:
     trigger: previous_doctor
     question: Which doctor did you see last time?
     rules:
@@ -833,12 +839,6 @@ conditions:
       override_doctor: HS
     - condition: saw_LB
       override_doctor: LB
-  lab: null
-  questionnaires: null
-  guidance_document: null
-  self_pay_price_dkk: null
-  special_instructions: 'ROUTING: Ask which doctor they saw last time. Route to the
-    same doctor (HS or LB).'
 - id: 31
   name: Incontinence — new referral
   description: Patient is leaking urine, has bladder control problems, 'can't hold
@@ -854,7 +854,6 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab:
     condition: always
     test: voiding diary
@@ -867,6 +866,7 @@ conditions:
     link: https://forms.gynaeskensved.dk/urinary-incontinence
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 32
   name: Incontinence — follow-up
   description: Patient is already being treated for incontinence and is returning
@@ -880,7 +880,6 @@ conditions:
   priority: standard
   referral_required: false
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
@@ -889,6 +888,7 @@ conditions:
     link: https://forms.gynaeskensved.dk/urinary-incontinence
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 33
   name: Recurrent UTI
   description: Patient keeps getting urinary tract infections repeatedly — 'keeps
@@ -909,13 +909,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 34
   name: Prolapse/cystocele/rectocele
   description: Patient feels something bulging or falling down in the vaginal area,
@@ -931,13 +931,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 35
   name: Prolapse ring — new
   description: Patient needs a new pessary/support ring fitted for prolapse. They
@@ -952,13 +952,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 36
   name: Prolapse ring — change/fitting
   description: Patient already has a prolapse ring and needs it changed, adjusted,
@@ -973,11 +973,11 @@ conditions:
   priority: standard
   referral_required: false
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 37
   name: Cell changes (abnormal smear)
   description: Patient has had an abnormal pap smear/cervical screening result and
@@ -994,13 +994,13 @@ conditions:
   priority: 1_month
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: Cell Changes
     link: https://forms.gynaeskensved.dk/cell-changes
   guidance_document: Tissue samples from cervix
   self_pay_price_dkk: null
+  questions: null
 - id: 38
   name: Smear test (routine)
   description: Patient wants a routine cervical screening / pap smear / celleprøve.
@@ -1015,11 +1015,11 @@ conditions:
   priority: standard
   referral_required: false
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: 950
+  questions: null
 - id: 39
   name: PCOS — new referral
   description: Patient has been referred for polycystic ovary syndrome (PCOS) — may
@@ -1035,7 +1035,6 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab:
     condition: always
     test: PCOS blood panel on cycle day 3
@@ -1045,6 +1044,7 @@ conditions:
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 40
   name: PCOS — follow-up
   description: Patient is already being treated for PCOS and is returning for a follow-up
@@ -1058,11 +1058,11 @@ conditions:
   priority: standard
   referral_required: false
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 41
   name: Hysteroscopy
   description: Patient has been referred for a hysteroscopy — a procedure to look
@@ -1078,11 +1078,11 @@ conditions:
   cycle_days:
   - 4
   - 8
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 42
   name: Cystoscopy
   description: Patient has been referred for a cystoscopy — a procedure to look inside
@@ -1097,11 +1097,11 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 43
   name: Polyp removal (cervical)
   description: Patient has a polyp on the cervix that needs to be removed. The polyp
@@ -1118,11 +1118,11 @@ conditions:
   cycle_days:
   - 5
   - 7
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: Removed polyp info
   self_pay_price_dkk: null
+  questions: null
 - id: 44
   name: Polyp removal (uterine)
   description: Patient has a polyp inside the uterus (livmoderen) that needs to be
@@ -1139,11 +1139,11 @@ conditions:
   cycle_days:
   - 4
   - 8
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: Removed polyp info
   self_pay_price_dkk: null
+  questions: null
 - id: 45
   name: Lichen sclerosus — new
   description: Patient has white patches, itching, or skin changes on the vulva and
@@ -1157,13 +1157,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 46
   name: Lichen sclerosus — follow-up with symptoms
   description: Patient already has a lichen sclerosus diagnosis but still has symptoms
@@ -1177,11 +1177,11 @@ conditions:
   priority: standard
   referral_required: false
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 47
   name: Lichen sclerosus — annual check
   description: Patient has lichen sclerosus and is coming in for their routine yearly
@@ -1195,11 +1195,11 @@ conditions:
   priority: standard
   referral_required: false
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 48
   name: Birth tear damage
   description: Patient has damage from childbirth — perineal tear, scar tissue, pain
@@ -1214,13 +1214,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 49
   name: Vaginal opening issues
   description: Patient has problems with vaginal tightness, narrowing, vaginismus
@@ -1241,13 +1241,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 50
   name: Itching/burning/discharge
   description: Patient has vaginal itching, burning sensation, or unusual discharge.
@@ -1265,13 +1265,13 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires:
   - name: You & Your Gynaecological Problem
     link: https://forms.gynaeskensved.dk/gynaecological-problem
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 51
   name: Tamoxifen follow-up
   description: Patient is taking Tamoxifen (breast cancer medication) and needs routine
@@ -1285,11 +1285,11 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null
 - id: 52
   name: Second opinion
   description: Patient wants another doctor's opinion on their condition or treatment
@@ -1303,18 +1303,18 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question:
-    trigger: fertility
-    question: Is your second opinion related to fertility treatment?
-    rules:
-    - condition: fertility_related
-      override_doctor: LB
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
   special_instructions: 'ROUTING: Ask if the second opinion is related to fertility.
     If yes → doctor=LB. If no → doctor=HS.'
+  questions:
+    trigger: fertility
+    question: Is your second opinion related to fertility treatment?
+    rules:
+    - condition: fertility_related
+      override_doctor: LB
 - id: 53
   name: Fibroids
   description: Patient has been referred for uterine fibroids (fibromer/myomer) —
@@ -1329,8 +1329,8 @@ conditions:
   priority: standard
   referral_required: true
   cycle_days: null
-  routing_question: null
   lab: null
   questionnaires: null
   guidance_document: null
   self_pay_price_dkk: null
+  questions: null

@@ -93,8 +93,8 @@
         document.getElementById('cf-keywords').value = (c.keywords || []).join(', ');
         const cd = c.cycle_days;
         document.getElementById('cf-cycle-days').value = cd ? (Array.isArray(cd) ? cd.join(',') : cd) : '';
-        document.getElementById('cf-routing-question').value = c.routing_question || '';
         document.getElementById('cf-self-pay').value = c.self_pay_price_dkk || '';
+        renderQuestions(c.questions || []);
         document.getElementById('cf-referral-required').checked = !!c.referral_required;
         document.getElementById('cf-special-instructions').value = c.special_instructions || '';
         renderQuestionnaires(c.questionnaires || []);
@@ -122,6 +122,23 @@
         container.appendChild(row);
     }
 
+    function renderQuestions(questions) {
+        const container = document.getElementById('cf-questions-list');
+        container.innerHTML = '';
+        questions.forEach(q => addQuestionRow(container, q));
+    }
+
+    function addQuestionRow(container, text) {
+        const row = document.createElement('div');
+        row.className = 'question-row';
+        row.innerHTML = `
+            <input type="text" class="form-input cq-text" placeholder="e.g. How old are you?" value="${escapeAttr(text)}">
+            <button type="button" class="btn btn-outline btn-sm q-remove" title="Remove">&times;</button>
+        `;
+        row.querySelector('.q-remove').addEventListener('click', () => row.remove());
+        container.appendChild(row);
+    }
+
     function escapeAttr(text) {
         return text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     }
@@ -136,6 +153,12 @@
             }
         });
 
+        const questions = [];
+        document.querySelectorAll('#cf-questions-list .question-row').forEach(row => {
+            const text = row.querySelector('.cq-text').value.trim();
+            if (text) questions.push(text);
+        });
+
         const data = {
             name: document.getElementById('cf-name').value.trim(),
             description: document.getElementById('cf-description').value.trim(),
@@ -144,7 +167,7 @@
             duration: parseInt(document.getElementById('cf-duration').value) || null,
             priority: document.getElementById('cf-priority').value || null,
             keywords: document.getElementById('cf-keywords').value.split(',').map(s => s.trim()).filter(Boolean),
-            routing_question: document.getElementById('cf-routing-question').value.trim() || null,
+            questions: questions.length ? questions : null,
             self_pay_price_dkk: parseFloat(document.getElementById('cf-self-pay').value) || null,
             questionnaires: questionnaires.length ? questionnaires : null,
             referral_required: document.getElementById('cf-referral-required').checked,
@@ -211,6 +234,9 @@
     editModal.addEventListener('click', (e) => { if (e.target === editModal) editModal.style.display = 'none'; });
     document.getElementById('addQuestionnaireBtn').addEventListener('click', () => {
         addQuestionnaireRow(document.getElementById('cf-questionnaires-list'), '', '');
+    });
+    document.getElementById('addQuestionBtn').addEventListener('click', () => {
+        addQuestionRow(document.getElementById('cf-questions-list'), '');
     });
 
     function escapeHtml(text) {
