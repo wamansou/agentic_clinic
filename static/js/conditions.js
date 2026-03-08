@@ -95,6 +95,8 @@
         document.getElementById('cf-cycle-days').value = cd ? (Array.isArray(cd) ? cd.join(',') : cd) : '';
         document.getElementById('cf-routing-question').value = c.routing_question || '';
         document.getElementById('cf-self-pay').value = c.self_pay_price_dkk || '';
+        document.getElementById('cf-questionnaires').value = (c.questionnaires || []).join(', ');
+        document.getElementById('cf-partner-questionnaire').value = c.partner_questionnaire || '';
         document.getElementById('cf-referral-required').checked = !!c.referral_required;
         document.getElementById('cf-special-instructions').value = c.special_instructions || '';
     }
@@ -110,6 +112,8 @@
             keywords: document.getElementById('cf-keywords').value.split(',').map(s => s.trim()).filter(Boolean),
             routing_question: document.getElementById('cf-routing-question').value.trim() || null,
             self_pay_price_dkk: parseFloat(document.getElementById('cf-self-pay').value) || null,
+            questionnaires: document.getElementById('cf-questionnaires').value.split(',').map(s => s.trim()).filter(Boolean).length ? document.getElementById('cf-questionnaires').value.split(',').map(s => s.trim()).filter(Boolean) : null,
+            partner_questionnaire: document.getElementById('cf-partner-questionnaire').value.trim() || null,
             referral_required: document.getElementById('cf-referral-required').checked,
             special_instructions: document.getElementById('cf-special-instructions').value.trim() || null,
         };

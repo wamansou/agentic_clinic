@@ -9,6 +9,19 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
+# Section 0: questionnaire_links
+# Maps questionnaire names to their online form URLs.
+# -----------------------------------------------------------------------------
+questionnaire_links:
+  "Premenopausal Bleeding": "https://forms.gynaeskensved.dk/premenopausal-bleeding"
+  "Infertility Questionnaire (UXOR)": "https://forms.gynaeskensved.dk/infertility-uxor"
+  "Infertility Questionnaire (VIR)": "https://forms.gynaeskensved.dk/infertility-vir"
+  "Pelvic Pain": "https://forms.gynaeskensved.dk/pelvic-pain"
+  "You & Your Gynaecological Problem": "https://forms.gynaeskensved.dk/gynaecological-problem"
+  "Urinary Problems / Incontinence": "https://forms.gynaeskensved.dk/urinary-incontinence"
+  "Cell Changes": "https://forms.gynaeskensved.dk/cell-changes"
+
+# -----------------------------------------------------------------------------
 # Section 1: condition_groups
 # Groups for conditions that share keywords and need disambiguation.
 # -----------------------------------------------------------------------------

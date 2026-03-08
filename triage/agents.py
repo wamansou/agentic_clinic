@@ -209,7 +209,7 @@ Write a warm, professional confirmation in the patient's language. Include:
 - Thank them by name
 - Confirm their condition/reason for visit (in patient-friendly terms, not medical codes)
 - Do NOT mention the doctor's name. Say the clinic will arrange the appointment with the appropriate specialist.
-- If there's a questionnaire to complete, mention it
+- If there's a questionnaire to complete, mention it and include the link URL so the patient can fill it out before their visit
 - If there are lab requirements, remind them
 - If cycle-dependent, mention the approximate timing window
 - Let them know the clinic will call them at their phone number to confirm the appointment

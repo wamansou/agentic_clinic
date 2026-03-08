@@ -94,6 +94,14 @@
                         <input type="text" class="form-input" id="cf-routing-question">
                     </div>
                     <div class="form-group">
+                        <label class="form-label" for="cf-questionnaires">Questionnaires (comma-separated names)</label>
+                        <input type="text" class="form-input" id="cf-questionnaires" placeholder="e.g. Pelvic Pain, You & Your Gynaecological Problem">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-partner-questionnaire">Partner Questionnaire</label>
+                        <input type="text" class="form-input" id="cf-partner-questionnaire" placeholder="e.g. Infertility Questionnaire (VIR)">
+                    </div>
+                    <div class="form-group">
                         <label class="form-label" for="cf-self-pay">Self-Pay Price (DKK)</label>
                         <input type="number" class="form-input" id="cf-self-pay" min="0">
                     </div>
@@ -118,5 +126,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/conditions.js?v=20260308f"></script>
+<script src="/static/js/conditions.js?v=20260308g"></script>
 {% endblock %}

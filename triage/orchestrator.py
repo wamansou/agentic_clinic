@@ -77,9 +77,22 @@ def enrich_booking(triage: TriageData) -> BookingRequest:
     # Questionnaire
     q_result = json.loads(get_questionnaire(triage.condition_id))
     if q_result.get("questionnaires"):
-        booking.questionnaire = ", ".join(q["name"] for q in q_result["questionnaires"])
+        parts = []
+        for q in q_result["questionnaires"]:
+            if q.get("link"):
+                parts.append(f"{q['name']} — {q['link']}")
+            else:
+                parts.append(q["name"])
+        booking.questionnaire = ", ".join(parts)
     if q_result.get("partner_questionnaire"):
-        booking.partner_questionnaire = q_result["partner_questionnaire"]
+        pq = q_result["partner_questionnaire"]
+        if isinstance(pq, dict):
+            if pq.get("link"):
+                booking.partner_questionnaire = f"{pq['name']} — {pq['link']}"
+            else:
+                booking.partner_questionnaire = pq["name"]
+        else:
+            booking.partner_questionnaire = pq
 
     # Guidance document
     g_result = json.loads(get_guidance_document(triage.condition_id))
