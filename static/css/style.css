@@ -889,7 +889,7 @@ body {
     max-width: 1100px;
     margin: 0 auto;
     padding: 28px 24px;
-    height: 100%;
+    height: calc(100vh - 56px);
     overflow-y: auto;
 }
 .conditions-header {
@@ -912,7 +912,8 @@ body {
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    overflow: hidden;
+    overflow: auto;
+    max-height: calc(100vh - 160px);
 }
 .conditions-table {
     width: 100%;
@@ -928,6 +929,9 @@ body {
     color: var(--gray-500);
     background: var(--gray-50);
     border-bottom: 1px solid var(--gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 .conditions-table td {
     padding: 10px 16px;
