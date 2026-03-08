@@ -116,6 +116,9 @@
         langHint.className = 'chat-lang-hint';
         langHint.textContent = '\u{1F310} Supports: English \u00B7 Dansk \u00B7 \u0423\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0430';
         chatMessages.appendChild(langHint);
+
+        // Welcome message
+        addMessage('agent', 'Hello! How can I help you today?');
     }
 
     // =========================================================================
