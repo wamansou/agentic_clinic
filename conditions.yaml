@@ -256,7 +256,9 @@ conditions:
     \ category=\"C\", escalate=false, priority_window=\"1_2_days\"\n   - If age ≤\
     \ 15 OR days > 62:\n     → NOT ELIGIBLE: escalate with the name and phone you\
     \ already collected. Do NOT re-ask for name or phone if already provided earlier.\n"
-  questions: null
+  questions:
+  - Are you over 15 years old? / Er du over 15 år?
+  - When did your last menstruation start? / Hvornår startede din sidste menstruation?
 - id: 6
   name: Cancer package referral
   description: Patient's GP has sent an urgent cancer referral (kræftpakke). The patient
@@ -485,11 +487,7 @@ conditions:
   special_instructions: 'ROUTING: Ask patient''s age. If age > 45 → doctor=HS. If
     age ≤ 45 → doctor=LB. Store the age as patient_age.'
   questions:
-    trigger: age
-    question: May I ask your age?
-    rules:
-    - condition: age > 45
-      override_doctor: HS
+  - May I ask your age?
 - id: 16
   name: Pelvic pain/dyspareunia
   description: Patient has chronic pelvic pain, lower abdominal pain, or pain during
@@ -604,13 +602,7 @@ conditions:
     → doctor=HS, duration=30, switch to condition [23] (hysteroscopic). If strings
     visible → doctor=LB.'
   questions:
-    trigger: strings
-    question: Can the strings usually be seen at your check-ups?
-    rules:
-    - condition: strings_not_visible
-      override_doctor: HS
-      override_duration: 30
-      override_condition_id: 23
+  - Can the strings usually be seen at your check-ups?
 - id: 21
   name: IUD replacement
   description: Patient wants to swap their current IUD for a new one — removal and
@@ -637,11 +629,7 @@ conditions:
   special_instructions: 'ROUTING: Ask about string visibility. If strings NOT visible
     → doctor=HS. If strings visible → doctor=LB.'
   questions:
-    trigger: strings
-    question: Can the strings usually be seen at your check-ups?
-    rules:
-    - condition: strings_not_visible
-      override_doctor: HS
+  - Can the strings usually be seen at your check-ups?
 - id: 22
   name: IUD removal — over 8 years old or no strings
   description: Patient's IUD has been in for over 8 years, or the strings cannot be
@@ -807,11 +795,7 @@ conditions:
   special_instructions: 'ROUTING: Ask if patient has been seen at the clinic before.
     If yes (previous patient) → doctor=HS. If no (new patient) → doctor=LB.'
   questions:
-    trigger: history
-    question: Have you previously been seen by Dr. Skensved at our clinic?
-    rules:
-    - condition: no_previous_hs
-      override_doctor: LB
+  - Have you previously been seen by Dr. Skensved at our clinic?
 - id: 30
   name: Menopause — follow-up
   description: Patient is already being treated for menopause at this clinic and is
@@ -832,13 +816,7 @@ conditions:
   special_instructions: 'ROUTING: Ask which doctor they saw last time. Route to the
     same doctor (HS or LB).'
   questions:
-    trigger: previous_doctor
-    question: Which doctor did you see last time?
-    rules:
-    - condition: saw_HS
-      override_doctor: HS
-    - condition: saw_LB
-      override_doctor: LB
+  - Which doctor did you see last time?
 - id: 31
   name: Incontinence — new referral
   description: Patient is leaking urine, has bladder control problems, 'can't hold
@@ -1310,11 +1288,7 @@ conditions:
   special_instructions: 'ROUTING: Ask if the second opinion is related to fertility.
     If yes → doctor=LB. If no → doctor=HS.'
   questions:
-    trigger: fertility
-    question: Is your second opinion related to fertility treatment?
-    rules:
-    - condition: fertility_related
-      override_doctor: LB
+  - Is your second opinion related to fertility treatment?
 - id: 53
   name: Fibroids
   description: Patient has been referred for uterine fibroids (fibromer/myomer) —
