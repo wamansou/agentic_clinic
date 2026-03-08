@@ -118,7 +118,7 @@
         chatMessages.appendChild(langHint);
 
         // Welcome message
-        addMessage('agent', 'Hello! How can I help you today?');
+        addMessage('agent', 'Hej! Hvordan kan jeg hjælpe dig i dag?');
     }
 
     // =========================================================================
