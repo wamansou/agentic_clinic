@@ -100,6 +100,17 @@ def build_condition_reference() -> str:
                 lines.append(f"    ⚠ {si_lines[0]}")
                 for si_line in si_lines[1:]:
                     lines.append(f"      {si_line}")
+            if c.get("contraindications"):
+                lines.append(f"    ⛔ Contraindications: {', '.join(c['contraindications'])}")
+            if c.get("age_range"):
+                ar = c["age_range"]
+                ar_parts = []
+                if ar.get("min"):
+                    ar_parts.append(f"min {ar['min']}")
+                if ar.get("max"):
+                    ar_parts.append(f"max {ar['max']}")
+                if ar_parts:
+                    lines.append(f"    🔢 Age range: {', '.join(ar_parts)}")
 
     lines.append("\n=== CONDITION GROUPS (ask clarifying question before assigning) ===")
     for group in GROUPS:
