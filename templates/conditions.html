@@ -99,6 +99,83 @@
                         <div id="cf-questionnaires-list" class="questionnaires-list"></div>
                         <button type="button" class="btn btn-outline btn-sm" id="addQuestionnaireBtn" style="margin-top: 6px;">+ Add Questionnaire</button>
                     </div>
+
+                    <!-- Triage Fields -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label">Contraindications</label>
+                        <div id="cf-contraindications-list" class="questions-list"></div>
+                        <button type="button" class="btn btn-outline btn-sm" id="addContraindicationBtn" style="margin-top: 6px;">+ Add Contraindication</button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-age-min">Min Age</label>
+                        <input type="number" class="form-input" id="cf-age-min" min="0" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-age-max">Max Age</label>
+                        <input type="number" class="form-input" id="cf-age-max" min="0" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-visits-required">Visits Required</label>
+                        <input type="number" class="form-input" id="cf-visits-required" min="1">
+                    </div>
+
+                    <!-- Patient Preparation -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label">Preparation Instructions</label>
+                        <div id="cf-preparation-list" class="questions-list"></div>
+                        <button type="button" class="btn btn-outline btn-sm" id="addPreparationBtn" style="margin-top: 6px;">+ Add Instruction</button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-companion-required">
+                            <input type="checkbox" id="cf-companion-required"> Companion / Driver Required
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-estimated-recovery">Estimated Recovery</label>
+                        <input type="text" class="form-input" id="cf-estimated-recovery" placeholder="e.g. 1-2 days rest">
+                    </div>
+
+                    <!-- Clinic / Scheduling -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label">Equipment Required</label>
+                        <div id="cf-equipment-list" class="questions-list"></div>
+                        <button type="button" class="btn btn-outline btn-sm" id="addEquipmentBtn" style="margin-top: 6px;">+ Add Equipment</button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cf-followup-interval">Follow-up Interval</label>
+                        <input type="text" class="form-input" id="cf-followup-interval" placeholder="e.g. 6 months">
+                    </div>
+
+                    <!-- Lab Requirements -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label">Lab Requirements</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div>
+                                <label class="form-label" for="cf-lab-test" style="font-size: 0.8rem; margin-bottom: 2px;">Test name(s)</label>
+                                <input type="text" class="form-input" id="cf-lab-test" placeholder="e.g. chlamydia (comma-separate multiple)">
+                            </div>
+                            <div>
+                                <label class="form-label" for="cf-lab-condition" style="font-size: 0.8rem; margin-bottom: 2px;">Age condition</label>
+                                <select class="form-input" id="cf-lab-condition">
+                                    <option value="">No lab required</option>
+                                    <option value="always">Always</option>
+                                    <option value="age_under_30">Under 30 only</option>
+                                    <option value="age_under_45">Under 45 only</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label" for="cf-lab-description" style="font-size: 0.8rem; margin-bottom: 2px;">Description</label>
+                            <input type="text" class="form-input" id="cf-lab-description" placeholder="e.g. Negative chlamydia test required for patients under 30">
+                        </div>
+                    </div>
+
+                    <!-- Guidance Document -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label" for="cf-guidance-document">Guidance Document</label>
+                        <input type="text" class="form-input" id="cf-guidance-document" placeholder="Document name or URL">
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label" for="cf-self-pay">Self-Pay Price (DKK)</label>
                         <input type="number" class="form-input" id="cf-self-pay" min="0">
@@ -124,5 +201,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/conditions.js?v=20260308i"></script>
+<script src="/static/js/conditions.js?v=20260309a"></script>
 {% endblock %}

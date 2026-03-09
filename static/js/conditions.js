@@ -98,6 +98,28 @@
         document.getElementById('cf-referral-required').checked = !!c.referral_required;
         document.getElementById('cf-special-instructions').value = c.special_instructions || '';
         renderQuestionnaires(c.questionnaires || []);
+
+        /* New condition-centric fields */
+        renderDynamicList('cf-contraindications-list', c.contraindications);
+        const ar = c.age_range || {};
+        document.getElementById('cf-age-min').value = ar.min != null ? ar.min : '';
+        document.getElementById('cf-age-max').value = ar.max != null ? ar.max : '';
+        document.getElementById('cf-visits-required').value = c.visits_required || '';
+        renderDynamicList('cf-preparation-list', c.preparation_instructions);
+        document.getElementById('cf-companion-required').checked = !!c.companion_required;
+        document.getElementById('cf-estimated-recovery').value = c.estimated_recovery || '';
+        renderDynamicList('cf-equipment-list', c.equipment);
+        document.getElementById('cf-followup-interval').value = c.followup_interval || '';
+
+        /* Lab requirements */
+        const lab = c.lab || {};
+        const labTest = lab.test || (lab.tests ? (Array.isArray(lab.tests) ? lab.tests.join(', ') : lab.tests) : '');
+        document.getElementById('cf-lab-test').value = labTest;
+        document.getElementById('cf-lab-condition').value = lab.condition || '';
+        document.getElementById('cf-lab-description').value = lab.description || '';
+
+        /* Guidance document */
+        document.getElementById('cf-guidance-document').value = c.guidance_document || '';
     }
 
     function renderQuestionnaires(questionnaires) {
@@ -120,6 +142,34 @@
         `;
         row.querySelector('.q-remove').addEventListener('click', () => row.remove());
         container.appendChild(row);
+    }
+
+    /* ── Generic dynamic list helpers (contraindications, preparation, equipment) ── */
+    function addDynamicRow(containerId, text) {
+        const container = document.getElementById(containerId);
+        const row = document.createElement('div');
+        row.className = 'question-row';
+        row.innerHTML = `
+            <input type="text" class="form-input dl-text" value="${escapeAttr(text || '')}">
+            <button type="button" class="btn btn-outline btn-sm q-remove" title="Remove">&times;</button>
+        `;
+        row.querySelector('.q-remove').addEventListener('click', () => row.remove());
+        container.appendChild(row);
+    }
+
+    function collectDynamicList(containerId) {
+        const items = [];
+        document.querySelectorAll(`#${containerId} .question-row`).forEach(row => {
+            const text = row.querySelector('.dl-text').value.trim();
+            if (text) items.push(text);
+        });
+        return items.length ? items : null;
+    }
+
+    function renderDynamicList(containerId, items) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        (items || []).forEach(item => addDynamicRow(containerId, item));
     }
 
     function renderQuestions(questions) {
@@ -159,6 +209,33 @@
             if (text) questions.push(text);
         });
 
+        /* Build age_range object — null if both empty */
+        const ageMin = document.getElementById('cf-age-min').value.trim();
+        const ageMax = document.getElementById('cf-age-max').value.trim();
+        let ageRange = null;
+        if (ageMin || ageMax) {
+            ageRange = {
+                min: ageMin ? parseInt(ageMin) : null,
+                max: ageMax ? parseInt(ageMax) : null,
+            };
+        }
+
+        /* Build lab object — null if no condition selected */
+        const labCondition = document.getElementById('cf-lab-condition').value;
+        let lab = null;
+        if (labCondition) {
+            const labTestRaw = document.getElementById('cf-lab-test').value.trim();
+            lab = {
+                condition: labCondition,
+                description: document.getElementById('cf-lab-description').value.trim() || '',
+            };
+            if (labTestRaw.includes(',')) {
+                lab.tests = labTestRaw.split(',').map(s => s.trim()).filter(Boolean);
+            } else {
+                lab.test = labTestRaw || '';
+            }
+        }
+
         const data = {
             name: document.getElementById('cf-name').value.trim(),
             description: document.getElementById('cf-description').value.trim(),
@@ -172,6 +249,16 @@
             questionnaires: questionnaires.length ? questionnaires : null,
             referral_required: document.getElementById('cf-referral-required').checked,
             special_instructions: document.getElementById('cf-special-instructions').value.trim() || null,
+            contraindications: collectDynamicList('cf-contraindications-list'),
+            age_range: ageRange,
+            visits_required: parseInt(document.getElementById('cf-visits-required').value) || null,
+            preparation_instructions: collectDynamicList('cf-preparation-list'),
+            companion_required: document.getElementById('cf-companion-required').checked,
+            estimated_recovery: document.getElementById('cf-estimated-recovery').value.trim() || null,
+            equipment: collectDynamicList('cf-equipment-list'),
+            followup_interval: document.getElementById('cf-followup-interval').value.trim() || null,
+            lab: lab,
+            guidance_document: document.getElementById('cf-guidance-document').value.trim() || null,
         };
 
         const cdRaw = document.getElementById('cf-cycle-days').value.trim();
@@ -237,6 +324,15 @@
     });
     document.getElementById('addQuestionBtn').addEventListener('click', () => {
         addQuestionRow(document.getElementById('cf-questions-list'), '');
+    });
+    document.getElementById('addContraindicationBtn').addEventListener('click', () => {
+        addDynamicRow('cf-contraindications-list', '');
+    });
+    document.getElementById('addPreparationBtn').addEventListener('click', () => {
+        addDynamicRow('cf-preparation-list', '');
+    });
+    document.getElementById('addEquipmentBtn').addEventListener('click', () => {
+        addDynamicRow('cf-equipment-list', '');
     });
 
     function escapeHtml(text) {
