@@ -183,6 +183,14 @@ SCENARIOS = [
         "expect": {"condition_id": 33, "doctor": "LB"},
     },
     {
+        "name": "doctor_preference_override",
+        "persona": "Your GP referred you for a cystoscopy. You have public insurance and a referral. When asked about doctor preference, you specifically want to see Dr. Bune (LB).",
+        "patient_name": "Sofie Jørgensen",
+        "phone": "77881122",
+        "expect_escalation": False,
+        "expect": {"condition_id": 42, "doctor": "LB"},
+    },
+    {
         "name": "unclassifiable_escalation",
         "persona": "You have a problem with lymph nodes in your groin area that keep swelling up. Your GP wasn't sure what it was and referred you to a gynecologist. If the assistant can't figure out what condition this is, you'd like to just talk to someone at the clinic.",
         "patient_name": "Jane Smith",
