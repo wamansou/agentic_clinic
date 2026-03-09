@@ -162,6 +162,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 2
   name: Sudden severe pain
   description: Patient has sudden, acute onset of severe pain — can't stand up, worst
@@ -182,6 +190,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 3
   name: Suspected ectopic pregnancy
   description: Patient is pregnant AND has sharp/one-sided abdominal pain, possibly
@@ -202,6 +218,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 4
   name: Pregnancy with bleeding/pain (1st trimester)
   description: Patient is pregnant (or just found out) and is experiencing bleeding
@@ -229,6 +253,14 @@ conditions:
     this is condition [4] (Category A), NOT premenopausal bleeding [15]. Always prioritize
     pregnancy + bleeding as Category A.'
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 5
   name: Medical abortion
   description: Patient wants to end a pregnancy, needs an abortion, wants to terminate.
@@ -259,6 +291,14 @@ conditions:
   questions:
   - Are you over 15 years old? / Er du over 15 år?
   - When did your last menstruation start? / Hvornår startede din sidste menstruation?
+  contraindications: null
+  age_range: {min: 15, max: null}
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 6
   name: Cancer package referral
   description: Patient's GP has sent an urgent cancer referral (kræftpakke). The patient
@@ -279,6 +319,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 7
   name: Postmenopausal bleeding
   description: Woman who has gone through menopause (periods stopped for 12+ months)
@@ -305,6 +353,14 @@ conditions:
     (especially age >50), this is postmenopausal bleeding [7] (Category B), NOT regular
     menopause [29]. Handle through normal booking, do NOT escalate as Category A.'
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 8
   name: Cone biopsy/conisation
   description: Patient has been referred for a cone biopsy (keglesnit) to remove a
@@ -325,6 +381,14 @@ conditions:
   guidance_document: Kegleoperation
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 9
   name: Contact bleeding (cervical)
   description: Patient bleeds after sexual intercourse or during sex. 'Bleeding after
@@ -350,6 +414,14 @@ conditions:
   guidance_document: Tissue samples from cervix
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 10
   name: Initial fertility consultation
   description: Patient is trying to get pregnant but hasn't succeeded. 'Can't get
@@ -382,6 +454,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 11
   name: Insemination
   description: Patient is already in fertility treatment and needs an insemination
@@ -400,6 +480,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 12
   name: Follicle scanning
   description: Patient needs follicle monitoring as part of fertility treatment —
@@ -421,6 +509,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 13
   name: HSU (tube exam)
   description: Patient needs a fallopian tube examination (HSU / æggelederundersøgelse)
@@ -442,6 +538,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 14
   name: Pregnancy scan without symptoms
   description: Patient thinks they might be pregnant, wants to confirm pregnancy,
@@ -462,6 +566,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 15
   name: Premenopausal bleeding
   description: Patient has irregular bleeding, heavy periods, bleeding between periods,
@@ -488,6 +600,14 @@ conditions:
     age ≤ 45 → doctor=LB. Store the age as patient_age.'
   questions:
   - May I ask your age?
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 16
   name: Pelvic pain/dyspareunia
   description: Patient has chronic pelvic pain, lower abdominal pain, or pain during
@@ -512,6 +632,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 17
   name: Menstrual pain (possible endometriosis)
   description: Patient has severe menstrual cramps, painful periods, 'period cramps',
@@ -534,6 +662,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 18
   name: Endometriosis — new referral
   description: Patient has been referred specifically for endometriosis assessment.
@@ -555,6 +691,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 19
   name: IUD insertion
   description: Patient wants a new IUD (spiral) put in. First-time IUD or new one
@@ -580,6 +724,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: 3500
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 20
   name: IUD removal — standard (strings visible)
   description: Patient wants their IUD (spiral) taken out. The strings are visible/accessible.
@@ -603,6 +755,14 @@ conditions:
     visible → doctor=LB.'
   questions:
   - Can the strings usually be seen at your check-ups?
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 21
   name: IUD replacement
   description: Patient wants to swap their current IUD for a new one — removal and
@@ -630,6 +790,14 @@ conditions:
     → doctor=HS. If strings visible → doctor=LB.'
   questions:
   - Can the strings usually be seen at your check-ups?
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 22
   name: IUD removal — over 8 years old or no strings
   description: Patient's IUD has been in for over 8 years, or the strings cannot be
@@ -649,6 +817,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 23
   name: Hysteroscopic IUD removal/insertion (no visible strings)
   description: IUD procedure that requires a hysteroscope — typically because the
@@ -669,6 +845,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: [hysteroscope]
+  followup_interval: null
 - id: 24
   name: Contraception counselling
   description: Patient wants advice about birth control options — pills, IUD, implant,
@@ -689,6 +873,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: 1200
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 25
   name: Implant insertion
   description: Patient wants a contraceptive implant (p-stav) put in their arm.
@@ -708,6 +900,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 26
   name: Implant removal
   description: Patient wants their contraceptive implant (p-stav) removed from their
@@ -726,6 +926,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 27
   name: Ovarian cysts
   description: Patient has been referred for an ovarian cyst — a cyst on the ovary
@@ -747,6 +955,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 28
   name: Vulva/vaginal cysts
   description: Patient has a cyst on the vulva or in the vaginal area, such as a Bartholin's
@@ -768,6 +984,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 29
   name: Menopause — new referral
   description: Patient has menopause symptoms — hot flashes, night sweats, mood changes,
@@ -796,6 +1020,14 @@ conditions:
     If yes (previous patient) → doctor=HS. If no (new patient) → doctor=LB.'
   questions:
   - Have you previously been seen by Dr. Skensved at our clinic?
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 30
   name: Menopause — follow-up
   description: Patient is already being treated for menopause at this clinic and is
@@ -817,6 +1049,14 @@ conditions:
     same doctor (HS or LB).'
   questions:
   - Which doctor did you see last time?
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 31
   name: Incontinence — new referral
   description: Patient is leaking urine, has bladder control problems, 'can't hold
@@ -845,6 +1085,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 32
   name: Incontinence — follow-up
   description: Patient is already being treated for incontinence and is returning
@@ -867,6 +1115,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 33
   name: Recurrent UTI
   description: Patient keeps getting urinary tract infections repeatedly — 'keeps
@@ -894,6 +1150,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 34
   name: Prolapse/cystocele/rectocele
   description: Patient feels something bulging or falling down in the vaginal area,
@@ -916,6 +1180,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 35
   name: Prolapse ring — new
   description: Patient needs a new pessary/support ring fitted for prolapse. They
@@ -937,6 +1209,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 36
   name: Prolapse ring — change/fitting
   description: Patient already has a prolapse ring and needs it changed, adjusted,
@@ -956,6 +1236,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 37
   name: Cell changes (abnormal smear)
   description: Patient has had an abnormal pap smear/cervical screening result and
@@ -979,6 +1267,14 @@ conditions:
   guidance_document: Tissue samples from cervix
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 38
   name: Smear test (routine)
   description: Patient wants a routine cervical screening / pap smear / celleprøve.
@@ -998,6 +1294,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: 950
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 39
   name: PCOS — new referral
   description: Patient has been referred for polycystic ovary syndrome (PCOS) — may
@@ -1023,6 +1327,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 40
   name: PCOS — follow-up
   description: Patient is already being treated for PCOS and is returning for a follow-up
@@ -1041,6 +1353,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 41
   name: Hysteroscopy
   description: Patient has been referred for a hysteroscopy — a procedure to look
@@ -1061,6 +1381,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: [hysteroscope]
+  followup_interval: null
 - id: 42
   name: Cystoscopy
   description: Patient has been referred for a cystoscopy — a procedure to look inside
@@ -1080,6 +1408,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: [cystoscope]
+  followup_interval: null
 - id: 43
   name: Polyp removal (cervical)
   description: Patient has a polyp on the cervix that needs to be removed. The polyp
@@ -1101,6 +1437,14 @@ conditions:
   guidance_document: Removed polyp info
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 44
   name: Polyp removal (uterine)
   description: Patient has a polyp inside the uterus (livmoderen) that needs to be
@@ -1122,6 +1466,14 @@ conditions:
   guidance_document: Removed polyp info
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: [hysteroscope]
+  followup_interval: null
 - id: 45
   name: Lichen sclerosus — new
   description: Patient has white patches, itching, or skin changes on the vulva and
@@ -1142,6 +1494,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 46
   name: Lichen sclerosus — follow-up with symptoms
   description: Patient already has a lichen sclerosus diagnosis but still has symptoms
@@ -1160,6 +1520,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 47
   name: Lichen sclerosus — annual check
   description: Patient has lichen sclerosus and is coming in for their routine yearly
@@ -1178,6 +1546,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 48
   name: Birth tear damage
   description: Patient has damage from childbirth — perineal tear, scar tissue, pain
@@ -1199,6 +1575,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 49
   name: Vaginal opening issues
   description: Patient has problems with vaginal tightness, narrowing, vaginismus
@@ -1226,6 +1610,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 50
   name: Itching/burning/discharge
   description: Patient has vaginal itching, burning sensation, or unusual discharge.
@@ -1250,6 +1642,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 51
   name: Tamoxifen follow-up
   description: Patient is taking Tamoxifen (breast cancer medication) and needs routine
@@ -1268,6 +1668,14 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 52
   name: Second opinion
   description: Patient wants another doctor's opinion on their condition or treatment
@@ -1289,6 +1697,14 @@ conditions:
     If yes → doctor=LB. If no → doctor=HS.'
   questions:
   - Is your second opinion related to fertility treatment?
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
 - id: 53
   name: Fibroids
   description: Patient has been referred for uterine fibroids (fibromer/myomer) —
@@ -1308,3 +1724,11 @@ conditions:
   guidance_document: null
   self_pay_price_dkk: null
   questions: null
+  contraindications: null
+  age_range: null
+  visits_required: null
+  preparation_instructions: null
+  companion_required: false
+  estimated_recovery: null
+  equipment: null
+  followup_interval: null
