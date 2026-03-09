@@ -43,11 +43,11 @@
                 <input type="hidden" id="cf-id">
                 <div class="cond-form-grid">
                     <div class="form-group">
-                        <label class="form-label" for="cf-name">Name</label>
-                        <input type="text" class="form-input" id="cf-name" required>
+                        <label class="form-label" for="cf-name">Name <span class="tooltip-icon">?<span class="tooltip-text">The condition name shown in the dashboard and used by the AI to identify it.</span></span></label>
+                        <input type="text" class="form-input" id="cf-name" required placeholder="e.g. Hysteroscopy">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-category">Category</label>
+                        <label class="form-label" for="cf-category">Category <span class="tooltip-icon">?<span class="tooltip-text">A = Urgent (escalate to staff), B = Semi-urgent (book within 1-2 weeks), C = Standard booking.</span></span></label>
                         <select class="form-input" id="cf-category">
                             <option value="A">A - Urgent</option>
                             <option value="B">B - Semi-urgent</option>
@@ -55,11 +55,11 @@
                         </select>
                     </div>
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label" for="cf-description">Description</label>
-                        <textarea class="form-input" id="cf-description" rows="3"></textarea>
+                        <label class="form-label" for="cf-description">Description <span class="tooltip-icon">?<span class="tooltip-text">How the AI distinguishes this condition from similar ones. Include common patient phrases and symptoms.</span></span></label>
+                        <textarea class="form-input" id="cf-description" rows="3" placeholder="e.g. Patient has been referred for a hysteroscopy — a procedure to look inside the uterus."></textarea>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-doctor">Doctor</label>
+                        <label class="form-label" for="cf-doctor">Doctor <span class="tooltip-icon">?<span class="tooltip-text">Default doctor for this condition. Can be overridden by patient preference or routing rules in special instructions.</span></span></label>
                         <select class="form-input" id="cf-doctor">
                             <option value="">None</option>
                             <option value="HS">HS (Dr. Skensved)</option>
@@ -67,11 +67,11 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-duration">Duration (min)</label>
-                        <input type="number" class="form-input" id="cf-duration" min="5" step="5">
+                        <label class="form-label" for="cf-duration">Duration (min) <span class="tooltip-icon">?<span class="tooltip-text">Appointment length in minutes. Used for scheduling.</span></span></label>
+                        <input type="number" class="form-input" id="cf-duration" min="5" step="5" placeholder="e.g. 30">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-priority">Priority</label>
+                        <label class="form-label" for="cf-priority">Priority <span class="tooltip-icon">?<span class="tooltip-text">How soon the patient should be booked after contacting the clinic.</span></span></label>
                         <select class="form-input" id="cf-priority">
                             <option value="">None</option>
                             <option value="same_day">Same day</option>
@@ -82,111 +82,111 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-keywords">Keywords (comma-separated)</label>
-                        <input type="text" class="form-input" id="cf-keywords">
+                        <label class="form-label" for="cf-keywords">Keywords <span class="tooltip-icon">?<span class="tooltip-text">Words and phrases (Danish + English) that help the AI match patient descriptions to this condition. Comma-separated.</span></span></label>
+                        <input type="text" class="form-input" id="cf-keywords" placeholder="e.g. hysteroskopi, hysteroscopy, kikkertundersøgelse">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-cycle-days">Cycle Days (e.g. 5,10)</label>
+                        <label class="form-label" for="cf-cycle-days">Cycle Days <span class="tooltip-icon">?<span class="tooltip-text">Which menstrual cycle days the procedure must be booked on. Leave empty if not cycle-dependent.</span></span></label>
                         <input type="text" class="form-input" id="cf-cycle-days" placeholder="e.g. 5,10 or just_before_next_period">
                     </div>
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">Condition-Specific Questions</label>
+                        <label class="form-label">Condition-Specific Questions <span class="tooltip-icon">?<span class="tooltip-text">Questions the AI asks the patient after identifying this condition. Used for routing decisions (e.g. age, string visibility).</span></span></label>
                         <div id="cf-questions-list" class="questions-list"></div>
                         <button type="button" class="btn btn-outline btn-sm" id="addQuestionBtn" style="margin-top: 6px;">+ Add Question</button>
                     </div>
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">Questionnaires</label>
+                        <label class="form-label">Questionnaires <span class="tooltip-icon">?<span class="tooltip-text">Pre-visit forms the patient should fill out. The AI includes links in the confirmation message.</span></span></label>
                         <div id="cf-questionnaires-list" class="questionnaires-list"></div>
                         <button type="button" class="btn btn-outline btn-sm" id="addQuestionnaireBtn" style="margin-top: 6px;">+ Add Questionnaire</button>
                     </div>
 
                     <!-- Triage Fields -->
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">Contraindications</label>
+                        <label class="form-label">Contraindications <span class="tooltip-icon">?<span class="tooltip-text">Conditions that prevent this procedure. The AI screens for these during triage and escalates to staff if any apply.</span></span></label>
                         <div id="cf-contraindications-list" class="questions-list"></div>
                         <button type="button" class="btn btn-outline btn-sm" id="addContraindicationBtn" style="margin-top: 6px;">+ Add Contraindication</button>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-age-min">Min Age</label>
-                        <input type="number" class="form-input" id="cf-age-min" min="0" max="120">
+                        <label class="form-label" for="cf-age-min">Min Age <span class="tooltip-icon">?<span class="tooltip-text">Minimum patient age for this procedure. The AI will ask the patient's age and escalate if below this.</span></span></label>
+                        <input type="number" class="form-input" id="cf-age-min" min="0" max="120" placeholder="No minimum">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-age-max">Max Age</label>
-                        <input type="number" class="form-input" id="cf-age-max" min="0" max="120">
+                        <label class="form-label" for="cf-age-max">Max Age <span class="tooltip-icon">?<span class="tooltip-text">Maximum patient age for this procedure. The AI will escalate if above this.</span></span></label>
+                        <input type="number" class="form-input" id="cf-age-max" min="0" max="120" placeholder="No maximum">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-visits-required">Visits Required</label>
-                        <input type="number" class="form-input" id="cf-visits-required" min="1">
+                        <label class="form-label" for="cf-visits-required">Visits Required <span class="tooltip-icon">?<span class="tooltip-text">How many appointments are typically needed. The AI informs the patient if more than one.</span></span></label>
+                        <input type="number" class="form-input" id="cf-visits-required" min="1" placeholder="1">
                     </div>
 
                     <!-- Patient Preparation -->
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">Preparation Instructions</label>
+                        <label class="form-label">Preparation Instructions <span class="tooltip-icon">?<span class="tooltip-text">What the patient should do before their visit. The AI includes these in the confirmation message.</span></span></label>
                         <div id="cf-preparation-list" class="questions-list"></div>
                         <button type="button" class="btn btn-outline btn-sm" id="addPreparationBtn" style="margin-top: 6px;">+ Add Instruction</button>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="cf-companion-required">
-                            <input type="checkbox" id="cf-companion-required"> Companion / Driver Required
+                            <input type="checkbox" id="cf-companion-required"> Companion / Driver Required <span class="tooltip-icon">?<span class="tooltip-text">Check if the patient needs someone to drive them home after the procedure. The AI will emphasize this.</span></span>
                         </label>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-estimated-recovery">Estimated Recovery</label>
-                        <input type="text" class="form-input" id="cf-estimated-recovery" placeholder="e.g. 1-2 days rest">
+                        <label class="form-label" for="cf-estimated-recovery">Estimated Recovery <span class="tooltip-icon">?<span class="tooltip-text">Expected recovery time after the procedure. Helps set patient expectations.</span></span></label>
+                        <input type="text" class="form-input" id="cf-estimated-recovery" placeholder="e.g. 1-2 days of light discomfort">
                     </div>
 
                     <!-- Clinic / Scheduling -->
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">Equipment Required</label>
+                        <label class="form-label">Equipment Required <span class="tooltip-icon">?<span class="tooltip-text">Instruments or room setup needed for this procedure. Helps staff know which room to book.</span></span></label>
                         <div id="cf-equipment-list" class="questions-list"></div>
                         <button type="button" class="btn btn-outline btn-sm" id="addEquipmentBtn" style="margin-top: 6px;">+ Add Equipment</button>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cf-followup-interval">Follow-up Interval</label>
-                        <input type="text" class="form-input" id="cf-followup-interval" placeholder="e.g. 6 months">
+                        <label class="form-label" for="cf-followup-interval">Follow-up Interval <span class="tooltip-icon">?<span class="tooltip-text">When the patient typically needs a follow-up appointment after this procedure.</span></span></label>
+                        <input type="text" class="form-input" id="cf-followup-interval" placeholder="e.g. 4-6 weeks">
                     </div>
 
                     <!-- Lab Requirements -->
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">Lab Requirements</label>
+                        <label class="form-label">Lab Requirements <span class="tooltip-icon">?<span class="tooltip-text">Tests the patient must complete before the appointment. The AI reminds the patient in the confirmation message.</span></span></label>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                             <div>
                                 <label class="form-label" for="cf-lab-test" style="font-size: 0.8rem; margin-bottom: 2px;">Test name(s)</label>
-                                <input type="text" class="form-input" id="cf-lab-test" placeholder="e.g. chlamydia (comma-separate multiple)">
+                                <input type="text" class="form-input" id="cf-lab-test" placeholder="e.g. chlamydia, blood panel">
                             </div>
                             <div>
                                 <label class="form-label" for="cf-lab-condition" style="font-size: 0.8rem; margin-bottom: 2px;">Age condition</label>
                                 <select class="form-input" id="cf-lab-condition">
                                     <option value="">No lab required</option>
-                                    <option value="always">Always</option>
-                                    <option value="age_under_30">Under 30 only</option>
-                                    <option value="age_under_45">Under 45 only</option>
+                                    <option value="always">Always required</option>
+                                    <option value="age_under_30">Only if under 30</option>
+                                    <option value="age_under_45">Only if under 45</option>
                                 </select>
                             </div>
                         </div>
                         <div>
-                            <label class="form-label" for="cf-lab-description" style="font-size: 0.8rem; margin-bottom: 2px;">Description</label>
-                            <input type="text" class="form-input" id="cf-lab-description" placeholder="e.g. Negative chlamydia test required for patients under 30">
+                            <label class="form-label" for="cf-lab-description" style="font-size: 0.8rem; margin-bottom: 2px;">Patient-facing description</label>
+                            <input type="text" class="form-input" id="cf-lab-description" placeholder="e.g. Negative chlamydia test required before your appointment">
                         </div>
                     </div>
 
                     <!-- Guidance Document -->
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label" for="cf-guidance-document">Guidance Document</label>
-                        <input type="text" class="form-input" id="cf-guidance-document" placeholder="Document name or URL">
+                        <label class="form-label" for="cf-guidance-document">Guidance Document <span class="tooltip-icon">?<span class="tooltip-text">Patient information document or link. The AI includes this in the confirmation so the patient can read it before their visit.</span></span></label>
+                        <input type="text" class="form-input" id="cf-guidance-document" placeholder="e.g. https://clinic.dk/info/hysteroscopy or Kegleoperation">
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="cf-self-pay">Self-Pay Price (DKK)</label>
-                        <input type="number" class="form-input" id="cf-self-pay" min="0">
+                        <label class="form-label" for="cf-self-pay">Self-Pay Price (DKK) <span class="tooltip-icon">?<span class="tooltip-text">Price for patients without a referral who choose to pay out of pocket.</span></span></label>
+                        <input type="number" class="form-input" id="cf-self-pay" min="0" placeholder="e.g. 950">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="cf-referral-required">
-                            <input type="checkbox" id="cf-referral-required"> Referral Required
+                            <input type="checkbox" id="cf-referral-required"> Referral Required <span class="tooltip-icon">?<span class="tooltip-text">Check if a GP referral is needed. Patients without a referral may be offered the self-pay option.</span></span>
                         </label>
                     </div>
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label" for="cf-special-instructions">Special Instructions (agent rules for this condition)</label>
+                        <label class="form-label" for="cf-special-instructions">Special Instructions <span class="tooltip-icon">?<span class="tooltip-text">Free-text rules for the AI that can't be captured in the structured fields above. Use for complex routing logic or unique edge cases.</span></span></label>
                         <textarea class="form-input" id="cf-special-instructions" rows="4" placeholder="e.g. ROUTING: Ask age. If >45 → doctor=HS. If ≤45 → doctor=LB."></textarea>
                     </div>
                 </div>
@@ -201,5 +201,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/conditions.js?v=20260309a"></script>
+<script src="/static/js/conditions.js?v=20260309b"></script>
 {% endblock %}
