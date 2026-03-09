@@ -108,7 +108,7 @@ def enrich_booking(triage: TriageData) -> BookingRequest:
         booking.equipment = cond["equipment"]
     if cond.get("followup_interval"):
         booking.followup_interval = cond["followup_interval"]
-    if cond.get("visits_required"):
+    if cond.get("visits_required") is not None:
         booking.visits_required = cond["visits_required"]
     if cond.get("contraindications"):
         booking.contraindications = cond["contraindications"]

@@ -215,8 +215,12 @@ Write a warm, professional confirmation in the patient's language. Include:
 - If there's a questionnaire to complete, mention it and include the link URL so the patient can fill it out before their visit
 - If there are lab requirements, remind them
 - If cycle-dependent, mention the approximate timing window
+- If there are preparation instructions, remind the patient what to do before the visit
+- If companion/driver is required, emphasize that the patient should arrange transport home
+- If estimated recovery info is available, set expectations
+- If multiple visits are required, mention this
 - Let them know the clinic will call them at their phone number to confirm the appointment
-- Keep it concise — 3-5 sentences max
+- Keep it concise but include all relevant preparation details
 
 Do NOT mention condition IDs, category codes, or internal system details.
 Do NOT mention the doctor's name — the clinic will handle doctor assignment internally.
