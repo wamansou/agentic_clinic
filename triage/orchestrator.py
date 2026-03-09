@@ -97,6 +97,22 @@ def enrich_booking(triage: TriageData) -> BookingRequest:
         if price_result.get("price_dkk"):
             booking.self_pay_price_dkk = price_result["price_dkk"]
 
+    # New condition-centric fields
+    if cond.get("preparation_instructions"):
+        booking.preparation_instructions = cond["preparation_instructions"]
+    if cond.get("companion_required"):
+        booking.companion_required = True
+    if cond.get("estimated_recovery"):
+        booking.estimated_recovery = cond["estimated_recovery"]
+    if cond.get("equipment"):
+        booking.equipment = cond["equipment"]
+    if cond.get("followup_interval"):
+        booking.followup_interval = cond["followup_interval"]
+    if cond.get("visits_required"):
+        booking.visits_required = cond["visits_required"]
+    if cond.get("contraindications"):
+        booking.contraindications = cond["contraindications"]
+
     return booking
 
 
@@ -123,6 +139,16 @@ def build_confirmation_context(triage: TriageData, booking: BookingRequest) -> s
     if booking.self_pay:
         price_str = f" ({booking.self_pay_price_dkk} DKK)" if booking.self_pay_price_dkk else ""
         parts.append(f"Self-pay appointment{price_str}")
+    if booking.preparation_instructions:
+        parts.append("Preparation before visit:")
+        for instr in booking.preparation_instructions:
+            parts.append(f"  - {instr}")
+    if booking.companion_required:
+        parts.append("IMPORTANT: Patient needs someone to drive them home after the procedure.")
+    if booking.estimated_recovery:
+        parts.append(f"Expected recovery: {booking.estimated_recovery}")
+    if booking.visits_required and booking.visits_required > 1:
+        parts.append(f"This typically requires {booking.visits_required} visits.")
 
     parts.append("\nWrite a warm confirmation message for the patient. The clinic will call them to finalize the appointment.")
     return "\n".join(parts)

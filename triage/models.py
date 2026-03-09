@@ -50,6 +50,14 @@ class BookingRequest(BaseModel):
     self_pay: bool = False
     self_pay_price_dkk: float | None = None
     notes: str | None = None
+    # New condition-centric fields
+    preparation_instructions: list[str] | None = None
+    companion_required: bool = False
+    estimated_recovery: str | None = None
+    equipment: list[str] | None = None
+    followup_interval: str | None = None
+    visits_required: int | None = None
+    contraindications: list[str] | None = None
 
 
 class HandoffRequest(BaseModel):
