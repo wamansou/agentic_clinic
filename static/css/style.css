@@ -987,10 +987,7 @@ body {
 }
 .form-label .tooltip-icon .tooltip-text {
     display: none;
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
+    position: fixed;
     background: var(--gray-800);
     color: var(--white);
     font-size: 11px;
@@ -1000,11 +997,9 @@ body {
     border-radius: var(--radius);
     white-space: normal;
     width: 220px;
-    z-index: 100;
+    z-index: 300;
     box-shadow: var(--shadow-md);
-}
-.form-label .tooltip-icon:hover .tooltip-text {
-    display: block;
+    pointer-events: none;
 }
 .questionnaires-list, .questions-list { display: flex; flex-direction: column; gap: 8px; }
 .questionnaire-row {

@@ -202,4 +202,29 @@
 
 {% block scripts %}
 <script src="/static/js/conditions.js?v=20260309b"></script>
+<script>
+document.addEventListener('mouseover', function(e) {
+    const icon = e.target.closest('.tooltip-icon');
+    if (!icon) return;
+    const tip = icon.querySelector('.tooltip-text');
+    if (!tip) return;
+    const rect = icon.getBoundingClientRect();
+    tip.style.display = 'block';
+    // Position below the icon
+    let top = rect.bottom + 6;
+    let left = rect.left + rect.width / 2 - 110;
+    // Keep within viewport
+    if (left < 8) left = 8;
+    if (left + 220 > window.innerWidth - 8) left = window.innerWidth - 228;
+    if (top + 80 > window.innerHeight) top = rect.top - tip.offsetHeight - 6;
+    tip.style.top = top + 'px';
+    tip.style.left = left + 'px';
+});
+document.addEventListener('mouseout', function(e) {
+    const icon = e.target.closest('.tooltip-icon');
+    if (!icon) return;
+    const tip = icon.querySelector('.tooltip-text');
+    if (tip) tip.style.display = 'none';
+});
+</script>
 {% endblock %}
