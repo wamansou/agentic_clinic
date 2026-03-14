@@ -13,7 +13,7 @@ DB_DIR.mkdir(exist_ok=True)
 
 load_dotenv(PROJECT_DIR / ".env")
 
-MODEL = os.getenv("TRIAGE_MODEL", "gpt-4o")
+MODEL = os.getenv("TRIAGE_MODEL", "gpt-5.4")
 
 # =============================================================================
 # Load YAML Config (mutable — supports runtime reload)

@@ -12,7 +12,7 @@ Built on the **OpenAI Agents SDK** with Pydantic structured outputs and a **Fast
 
 - **Python 3.14** via `.venv` (activate: `source .venv/bin/activate`)
 - **Key packages:** `openai-agents` 0.10.2, `pydantic` v2, `PyYAML`, `python-dotenv`, `fastapi`, `uvicorn`, `jinja2`
-- **LLM:** Configured via `TRIAGE_MODEL` env var in `.env`
+- **LLM:** Configured via `TRIAGE_MODEL` env var in `.env` (defaults to `gpt-5.4`)
 - **API key:** `OPENAI_API_KEY` in `.env`
 - **Demo auth:** `DEMO_USER` / `DEMO_PASS` in `.env` (defaults: admin / kvinde2026)
 
@@ -27,80 +27,54 @@ python main.py
 # → http://localhost:8000 (login with DEMO_USER/DEMO_PASS)
 
 # War games (AI-vs-AI testing)
-python -m tests.war_games.run_war_games                          # all scenarios
+python -m tests.war_games.run_war_games                          # all 22 scenarios
 python -m tests.war_games.run_war_games --scenario selfpay_smear # one scenario
 python -m tests.war_games.run_war_games --list                   # list scenarios
 ```
 
+There are no unit tests or linting configured. The war games are the primary test suite — each scenario is a full AI-vs-AI conversation that verifies the triage agent routes correctly (condition ID, doctor, escalation, self-pay, labs, etc.).
+
 ## Architecture
 
-Single conversation agent + Python orchestrator + FastAPI web UI.
+Three-agent pipeline with deterministic Python enrichment between LLM stages:
 
 ```
-Browser → FastAPI (api.py)
-            ├→ WebSocket /ws/{session_id}
-            │     → orchestrator.run_agent_turn()
-            │         → triage_agent (collects data via conversation)
-            │         → enrich_booking() or run_handoff() (deterministic Python)
-            │         → confirmation_agent (generates patient message)
-            ├→ REST API (/api/sessions, /health)
-            └→ Jinja2 templates (chat UI, history dashboard)
+Browser ↔ WebSocket /ws/{session_id}
+              │
+              ↓
+     orchestrator.run_agent_turn()
+              │
+              ├─ [1] triage_agent (multi-turn conversation)
+              │     Tools: fetch_condition_details, complete_triage
+              │     Collects: insurance, name, phone, condition, cycle info
+              │     Outputs: TriageData (via complete_triage tool)
+              │
+              ├─ [2] Deterministic Python (NO LLM)
+              │     orchestrator.enrich_booking() or orchestrator.run_handoff()
+              │     Adds: cycle window, lab reqs, questionnaire, guidance doc, pricing
+              │     Outputs: BookingRequest or HandoffRequest
+              │
+              └─ [3] confirmation_agent (single-turn)
+                    Generates patient-facing confirmation message
+                    Uses patient language, includes prep instructions
 ```
 
-## Project Structure
+### Key architectural patterns
 
-```
-new_triage/
-├── conditions.yaml          # Knowledge base: 53 conditions, groups, cycle rules, prices
-├── main.py                  # Uvicorn entry point
-├── triage/                  # Python package
-│   ├── __init__.py
-│   ├── config.py            # YAML loading, MODEL, PROJECT_DIR, CONDITIONS, CONDITION_REFERENCE
-│   ├── models.py            # TriageData, BookingRequest, HandoffRequest, WSMessage, SessionMeta
-│   ├── tools.py             # 6 raw fns + 2 @function_tool + validator
-│   ├── agents.py            # triage_agent, handoff_agent, confirmation_agent + prompts
-│   ├── orchestrator.py      # enrich_booking, run_agent_turn, run_handoff, extract_partial_triage
-│   ├── session_store.py     # SQLite session metadata for dashboard history
-│   ├── auth.py              # Password login via DEMO_USER/DEMO_PASS env vars
-│   └── api.py               # FastAPI app, REST routes, WebSocket
-├── static/
-│   ├── css/style.css
-│   └── js/app.js
-├── templates/
-│   ├── base.html            # Nav, CSS/JS includes
-│   ├── login.html           # Username + password form
-│   ├── index.html           # Chat (left) + triage panel (right) + result card
-│   └── history.html         # Session history table
-├── tests/
-│   └── war_games/           # AI-vs-AI testing
-│       ├── scenarios.py     # 22 test scenarios
-│       ├── runner.py         # Patient simulator + scenario runner
-│       └── run_war_games.py # CLI entry point
-├── data/                    # SQLite DBs (gitignored)
-├── archive/                 # Old monolithic files preserved
-└── Triage_Conversation_Chain.md  # Source specification
-```
+- **Session persistence:** The OpenAI Agents SDK's `SQLiteSession` stores full conversation history in `data/triage_sessions.db`. A separate `SessionStore` (in `data/dashboard.db`) tracks session metadata for the history dashboard.
+- **Dynamic prompt injection:** `triage_agent.instructions` is a callable (`_build_triage_instructions`) — the full condition reference (all 53 conditions + 9 groups) is regenerated from YAML on every turn. This means edits to `conditions.yaml` take effect immediately.
+- **Tool validation loop:** `complete_triage` returns `ERROR:` prefixed strings for missing `condition_id` or `doctor`. The custom `validate_complete_triage` handler checks for this — if it's an error, the agent retries instead of terminating. This is the `tool_use_behavior` callback on the triage agent.
+- **Enrichment is deterministic:** After the agent calls `complete_triage`, all downstream logic (cycle calculation, lab checks, questionnaires, pricing) runs in Python with no LLM calls. Only the final confirmation message uses an LLM.
+- **Escalation paths:** Category A (urgent), DSS insurance, unclassifiable conditions, and patient "escape hatch" all route through `run_handoff()` → `handoff_agent` → `HandoffRequest`.
 
 ## Key Files
 
-- **`conditions.yaml`** — Knowledge base. 53 conditions (categories A/B/C), 9 condition groups, cycle rules, questionnaires, guidance docs, self-pay prices.
-- **`triage/agents.py`** — Agent definitions and the full triage instruction prompt.
-- **`triage/orchestrator.py`** — Core logic: `run_agent_turn()` for web UI, enrichment, handoff processing.
-- **`triage/api.py`** — FastAPI routes and WebSocket handler.
-- **`triage/tools.py`** — Tool functions that query `conditions.yaml`.
-
-## Tool Functions (in triage/tools.py)
-
-| Tool | Purpose |
-|------|---------|
-| `fetch_condition_details()` | Full condition details by ID (agent tool) |
-| `complete_triage()` | Submit collected triage data (agent tool, with validation) |
-| `get_condition_details()` | Raw condition lookup |
-| `calculate_cycle_window()` | Calculate valid booking dates from cycle data |
-| `get_lab_requirements()` | Check age-dependent lab prerequisites |
-| `get_questionnaire()` | Get pre-visit questionnaire(s) |
-| `get_guidance_document()` | Get patient guidance documents |
-| `get_self_pay_price()` | Self-pay pricing lookup |
+- **`conditions.yaml`** — Knowledge base. 53 conditions (categories A/B/C), 9 condition groups, cycle rules, questionnaires, guidance docs, self-pay prices. This is the single source of truth for clinical data.
+- **`triage/agents.py`** — Agent definitions and the full triage instruction prompt (~150 lines of LLM instructions). The prompt encodes the entire conversation flow, escalation rules, and condition matching logic.
+- **`triage/orchestrator.py`** — Core pipeline: `run_agent_turn()` drives the web UI loop, `enrich_booking()` adds deterministic data, `process_completed_triage()` decides booking vs handoff.
+- **`triage/tools.py`** — Two `@function_tool` wrappers (exposed to LLM) + 6 raw Python functions (used by enrichment). The agent only calls `fetch_condition_details` and `complete_triage`.
+- **`triage/config.py`** — YAML loading, runtime reload, and `build_condition_reference()` which generates the condition lookup table injected into the agent prompt.
+- **`triage/models.py`** — `TriageData` (agent output), `BookingRequest` (enriched booking), `HandoffRequest` (staff escalation).
 
 ## Condition Categories
 
@@ -113,6 +87,11 @@ new_triage/
 - **Doctor routing:** Two doctors — Dr. HS (Skensved) and Dr. LB. Routing depends on condition, patient age (>45 for bleeding), IUD string visibility, menopause history, and fertility context.
 - **DSS/private insurance:** Always hand off to staff.
 - **Cycle-dependent procedures:** 9 procedures require booking on specific menstrual cycle days.
-- **Condition groups:** 9 ambiguous keyword groups require clarifying questions.
-- **Languages:** Danish (primary), English, Ukrainian.
+- **Condition groups:** 9 ambiguous keyword groups require clarifying questions to disambiguate.
+- **Languages:** Danish (primary), English, Ukrainian. Agent must match the language of the patient's most recent message.
 - **Self-pay path:** Patients without referrals can proceed as self-pay for certain conditions.
+- **Referral is passive:** The agent never asks about referrals — it only records `has_referral=true` if the patient volunteers the information.
+
+## War Games Testing
+
+War game scenarios (`tests/war_games/scenarios.py`) define patient personas with expected outcomes. The runner (`tests/war_games/runner.py`) spins up an LLM-powered patient simulator that converses with the triage agent, then verifies the output matches `expect` fields (condition_id, doctor, category, self_pay, etc.) and `expect_escalation`. Scenarios cover Category A emergencies, DSS escalation, group disambiguation, cycle-dependent bookings, self-pay pricing, doctor preference overrides, and edge cases.
