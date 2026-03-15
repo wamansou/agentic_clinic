@@ -171,6 +171,7 @@ async def simulate_patient(
             "doctor": triage_data.doctor,
             "language": triage_data.language,
             "insurance_type": triage_data.insurance_type,
+            "has_referral": triage_data.has_referral,
             "cycle_dependent": booking.cycle_dependent,
             "lab_required": booking.lab_required,
             "self_pay": booking.self_pay,

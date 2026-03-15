@@ -147,10 +147,37 @@ def get_self_pay_price(condition_id: int) -> str:
 # Agent Tools (@function_tool wrappers)
 # =============================================================================
 
+REFERRAL_QUESTION = (
+    "REFERRAL CHECK (MANDATORY): Ask the patient 'Do you have a referral from your doctor?' "
+    "/ 'Har du en henvisning fra din læge?'. "
+    "If YES → set has_referral=true, insurance_type='public'. "
+    "If NO → then ask 'Do you have public health insurance (det gule sygesikringskort)?'. "
+    "If public → has_referral=false, insurance_type='public' (self-pay). "
+    "If DSS/private → insurance_type='dss', escalate."
+)
+
+ABORTION_INSURANCE_QUESTION = (
+    "INSURANCE CHECK (MANDATORY): Ask the patient 'Do you have public health insurance "
+    "(det gule sygesikringskort)?'. Set insurance_type='public' or insurance_type='dss'."
+)
+
+
 @function_tool
 def fetch_condition_details(condition_id: int) -> str:
     """Get full details for a specific condition including doctor, duration, priority, cycle requirements, lab requirements, and routing questions."""
-    return get_condition_details(condition_id)
+    result = get_condition_details(condition_id)
+    try:
+        data = json.loads(result)
+        if "error" not in data:
+            questions = data.get("questions") or []
+            if condition_id == 5:
+                questions.append(ABORTION_INSURANCE_QUESTION)
+            else:
+                questions.append(REFERRAL_QUESTION)
+            data["questions"] = questions
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    except (json.JSONDecodeError, TypeError):
+        return result
 
 
 @function_tool
@@ -170,6 +197,21 @@ def complete_triage(data: TriageData) -> str:
                 "ERROR: doctor is required. Call fetch_condition_details() with the "
                 "condition_id to get the default doctor. If the condition has a "
                 "routing_question, ask it first to determine the correct doctor (HS or LB)."
+            )
+        # Referral/insurance check: for non-abortion conditions, referral must be explicitly asked
+        if data.condition_id != 5 and data.has_referral is None:
+            return (
+                "ERROR: has_referral is required. You MUST ask the patient: "
+                "\"Do you have a referral from your doctor?\" (\"Har du en henvisning fra din læge?\"). "
+                "Set has_referral=true if yes, has_referral=false if no. "
+                "If no referral, also ask about insurance (the yellow card) to check for DSS."
+            )
+        # For abortion (condition 5), insurance_type must be set (yellow card question)
+        if data.condition_id == 5 and data.insurance_type is None:
+            return (
+                "ERROR: insurance_type is required for abortion cases. You MUST ask the patient: "
+                "\"Do you have public health insurance (det gule sygesikringskort)?\" "
+                "Set insurance_type=\"public\" or insurance_type=\"dss\"."
             )
     return data.model_dump_json()
 

@@ -90,7 +90,8 @@ Browser ↔ WebSocket /ws/{session_id}
 - **Condition groups:** 9 ambiguous keyword groups require clarifying questions to disambiguate.
 - **Languages:** Danish (primary), English, Ukrainian. Agent must match the language of the patient's most recent message.
 - **Self-pay path:** Patients without referrals can proceed as self-pay for certain conditions.
-- **Referral is passive:** The agent never asks about referrals — it only records `has_referral=true` if the patient volunteers the information.
+- **Referral is active:** The agent asks about referrals at step 5 (after condition identification) for all non-abortion cases. If no referral, the agent then asks about insurance to detect DSS/self-pay.
+- **Yellow card (insurance) question:** Only asked for abortion cases (condition 5) upfront, or when a non-abortion patient says they have no referral.
 
 ## War Games Testing
 
