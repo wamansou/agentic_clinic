@@ -177,6 +177,45 @@ async def api_delete_inactive():
     return {"deleted": count}
 
 
+@app.get("/api/sessions/{session_id}/comments")
+async def api_list_comments(session_id: str):
+    return store.list_comments(session_id)
+
+
+@app.post("/api/sessions/{session_id}/comments")
+async def api_add_comment(session_id: str, request: Request):
+    from fastapi.responses import JSONResponse
+    if not store.get_session(session_id):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    data = await request.json()
+    author = (data.get("author") or "").strip()
+    body = (data.get("body") or "").strip()
+    if not author or not body:
+        return JSONResponse({"error": "author and body required"}, status_code=400)
+    return store.add_comment(session_id, author, body)
+
+
+@app.put("/api/comments/{comment_id}")
+async def api_update_comment(comment_id: int, request: Request):
+    from fastapi.responses import JSONResponse
+    data = await request.json()
+    body = (data.get("body") or "").strip()
+    if not body:
+        return JSONResponse({"error": "body required"}, status_code=400)
+    updated = store.update_comment(comment_id, body)
+    if updated is None:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return updated
+
+
+@app.delete("/api/comments/{comment_id}")
+async def api_delete_comment(comment_id: int):
+    from fastapi.responses import JSONResponse
+    if not store.delete_comment(comment_id):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return {"deleted": True}
+
+
 # =============================================================================
 # WebSocket
 # =============================================================================
