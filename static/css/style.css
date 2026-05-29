@@ -1055,3 +1055,51 @@ body {
     .message { max-width: 88%; }
     .detail-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== Session-detail modal: export, notes, processing ===== */
+.result-divider { height: 1px; background: var(--gray-200); margin: 10px 0; }
+
+.export-actions { display: flex; gap: 8px; margin: 4px 0 12px; }
+
+.notes-section .notes-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.note-item { background: var(--gray-50, #f8f8f8); border: 1px solid var(--gray-200, #e5e5e5); border-radius: 8px; padding: 8px 10px; }
+.note-head { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--gray-500, #888); }
+.note-author-name { font-weight: 600; color: var(--gray-700, #444); }
+.note-actions { margin-left: auto; display: flex; gap: 8px; }
+.note-actions button { background: none; border: none; color: var(--gray-500, #888); cursor: pointer; font-size: 12px; padding: 0; }
+.note-actions button:hover { color: var(--gray-800, #222); text-decoration: underline; }
+.note-text { margin-top: 4px; white-space: pre-wrap; }
+.notes-empty { color: var(--gray-500, #888); font-style: italic; }
+.note-form { display: flex; flex-direction: column; gap: 6px; }
+.note-form .note-author { max-width: 220px; }
+.note-form input, .note-form textarea { padding: 6px 8px; border: 1px solid var(--gray-300, #ccc); border-radius: 6px; font: inherit; }
+.note-form textarea { min-height: 56px; resize: vertical; }
+.note-error { color: #c0392b; font-size: 12px; min-height: 14px; margin: 4px 0 0; }
+
+.proc-btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.proc-btn { padding: 4px 10px; border: 1px solid var(--gray-300, #ccc); border-radius: 999px; background: #fff; cursor: pointer; font-size: 13px; }
+.proc-btn.active { background: var(--gray-800, #222); color: #fff; border-color: var(--gray-800, #222); }
+.proc-name-label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--gray-600, #666); }
+.proc-name-input { padding: 4px 8px; border: 1px solid var(--gray-300, #ccc); border-radius: 6px; font: inherit; }
+.proc-saved { margin-left: 8px; color: #2e7d32; font-size: 12px; }
+
+/* ===== Inbox table ===== */
+.inbox-row { cursor: pointer; }
+.inbox-row.is-done { opacity: 0.55; }
+.urgency-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.urgency-immediate, .urgency-escalated { background: #fdecea; color: #c0392b; }
+.urgency-high { background: #fff4e5; color: #b35900; }
+.urgency-normal { background: var(--gray-100, #eee); color: var(--gray-600, #666); }
+.proc-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; background: var(--gray-100, #eee); color: var(--gray-700, #444); }
+.proc-badge.proc-done { background: #e8f5e9; color: #2e7d32; }
+.proc-badge.proc-in_progress { background: #e3f2fd; color: #1565c0; }
+.proc-badge.proc-followup { background: #fff4e5; color: #b35900; }
+
+/* ===== Print: show only the open modal card ===== */
+@media print {
+  body * { visibility: hidden; }
+  .modal-overlay, .modal-card, .modal-card * { visibility: visible; }
+  .modal-overlay { position: absolute; inset: 0; display: block !important; background: #fff; }
+  .modal-card { box-shadow: none; max-height: none; width: 100%; }
+  .modal-close, .export-actions, .processing-controls, .note-form, .note-actions { display: none !important; }
+}

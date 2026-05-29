@@ -75,86 +75,12 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/session-detail.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('detailModal');
-    const modalBody = document.getElementById('modalBody');
-    const modalClose = document.getElementById('modalClose');
-
     document.querySelectorAll('.history-row').forEach(row => {
-        row.addEventListener('click', async () => {
-            const sid = row.dataset.session;
-            modal.style.display = 'flex';
-            modalBody.innerHTML = '<div class="loading-spinner"></div>';
-
-            try {
-                const resp = await fetch(`/api/sessions/${sid}`);
-                const data = await resp.json();
-                let html = '<div class="detail-grid">';
-                html += `<div class="detail-item"><span class="detail-label">Session ID</span><span class="detail-value">${data.session_id}</span></div>`;
-                html += `<div class="detail-item"><span class="detail-label">Patient</span><span class="detail-value">${data.patient_name || '—'}</span></div>`;
-                html += `<div class="detail-item"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${data.status}">${data.status}</span></span></div>`;
-                html += `<div class="detail-item"><span class="detail-label">Condition</span><span class="detail-value">${data.condition_name || '—'}</span></div>`;
-                html += `<div class="detail-item"><span class="detail-label">Created</span><span class="detail-value">${data.created_at}</span></div>`;
-                html += '</div>';
-
-                if (data.conversation && data.conversation.length > 0) {
-                    html += '<div class="detail-result"><h4>Conversation</h4><div class="conversation-display">';
-                    for (const msg of data.conversation) {
-                        const role = msg.role === 'user' ? 'patient' : 'agent';
-                        const escaped = msg.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-                        html += `<div class="conv-msg conv-msg-${role}"><div class="conv-bubble conv-bubble-${role}">${escaped}</div></div>`;
-                    }
-                    html += '</div></div>';
-                }
-
-                if (data.result) {
-                    const r = data.result;
-                    const t = r.triage || {};
-                    const isHandoff = !!r.reason;
-                    const DOCTORS = { HS: 'Dr. Skensved (HS)', LB: 'Dr. Bune (LB)' };
-                    const CATS = { A: 'A — Urgent', B: 'B — Semi-urgent', C: 'C — Standard' };
-                    const field = (label, val) => val ? `<div class="result-field"><span class="result-field-label">${label}</span><span class="result-field-value">${String(val).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span></div>` : '';
-
-                    html += '<div class="detail-result"><h4>' + (isHandoff ? 'Staff Handoff' : 'Booking Result') + '</h4>';
-                    html += field('Patient', t.patient_name);
-                    html += field('Phone', t.phone_number);
-                    html += field('Insurance', t.insurance_type === 'public' ? 'Public (sygesikring)' : t.insurance_type === 'dss' ? 'DSS / Private' : t.insurance_type);
-                    html += field('Condition', t.condition_name);
-                    html += field('Category', CATS[t.category] || t.category);
-                    html += field('Doctor', DOCTORS[t.doctor] || t.doctor);
-                    if (t.duration_minutes) html += field('Duration', t.duration_minutes + ' min');
-                    if (t.priority_window) html += field('Priority', t.priority_window);
-                    if (t.patient_age) html += field('Age', t.patient_age);
-                    if (t.last_period_date) html += field('Last Period', t.last_period_date);
-
-                    if (isHandoff) {
-                        html += '<div style="height:1px;background:var(--gray-200);margin:10px 0;"></div>';
-                        html += field('Reason', r.reason);
-                        html += field('Urgency', r.urgency);
-                        html += field('Summary', r.conversation_summary);
-                        if (r.suggested_action) html += field('Suggested Action', r.suggested_action);
-                    } else {
-                        if (r.cycle_dependent) html += field('Cycle Dependent', 'Yes');
-                        if (r.valid_booking_window) html += field('Booking Window', r.valid_booking_window);
-                        if (r.lab_required) html += field('Lab Required', r.lab_details || 'Yes');
-                        if (r.questionnaire) html += field('Questionnaire', r.questionnaire);
-                        if (r.partner_questionnaire) html += field('Partner Quest.', r.partner_questionnaire);
-                        if (r.guidance_document) html += field('Guidance Doc', r.guidance_document);
-                        if (r.self_pay) html += field('Self-Pay', r.self_pay_price_dkk ? r.self_pay_price_dkk + ' DKK' : 'Yes');
-                        if (r.provera_recommended) html += field('Provera', 'Recommended');
-                    }
-                    html += '</div>';
-                }
-                modalBody.innerHTML = html;
-            } catch (e) {
-                modalBody.innerHTML = '<p class="error-text">Failed to load session details.</p>';
-            }
-        });
+        row.addEventListener('click', () => SessionDetail.open(row.dataset.session, 'history'));
     });
-
-    modalClose.addEventListener('click', () => { modal.style.display = 'none'; });
-    modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
 
     const clearBtn = document.getElementById('clearInactiveBtn');
     if (clearBtn) {
