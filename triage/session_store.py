@@ -28,6 +28,19 @@ class SessionStore:
                     result_json TEXT
                 )
             """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS comments (
+                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id  TEXT NOT NULL,
+                    author      TEXT NOT NULL,
+                    body        TEXT NOT NULL,
+                    created_at  TEXT NOT NULL,
+                    updated_at  TEXT
+                )
+            """)
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_comments_session ON comments(session_id)"
+            )
             conn.commit()
 
     def create_session(self, session_id: str) -> SessionMeta:
@@ -154,6 +167,53 @@ class SessionStore:
         except Exception:
             pass
         return messages
+
+    def add_comment(self, session_id: str, author: str, body: str) -> dict:
+        now = datetime.now(timezone.utc).isoformat()
+        with sqlite3.connect(self.db_path) as conn:
+            cur = conn.execute(
+                "INSERT INTO comments (session_id, author, body, created_at) VALUES (?, ?, ?, ?)",
+                (session_id, author, body, now),
+            )
+            conn.commit()
+            comment_id = cur.lastrowid
+        return {
+            "id": comment_id, "session_id": session_id, "author": author,
+            "body": body, "created_at": now, "updated_at": None,
+        }
+
+    def list_comments(self, session_id: str) -> list[dict]:
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT id, session_id, author, body, created_at, updated_at "
+                "FROM comments WHERE session_id = ? ORDER BY created_at ASC, id ASC",
+                (session_id,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def update_comment(self, comment_id: int, body: str) -> dict | None:
+        now = datetime.now(timezone.utc).isoformat()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute(
+                "UPDATE comments SET body = ?, updated_at = ? WHERE id = ?",
+                (body, now, comment_id),
+            )
+            conn.commit()
+            if cur.rowcount == 0:
+                return None
+            row = conn.execute(
+                "SELECT id, session_id, author, body, created_at, updated_at "
+                "FROM comments WHERE id = ?", (comment_id,),
+            ).fetchone()
+        return dict(row)
+
+    def delete_comment(self, comment_id: int) -> bool:
+        with sqlite3.connect(self.db_path) as conn:
+            cur = conn.execute("DELETE FROM comments WHERE id = ?", (comment_id,))
+            conn.commit()
+            return cur.rowcount > 0
 
     def delete_inactive(self) -> int:
         """Delete all sessions with status 'active' (started but never completed). Returns count deleted."""
