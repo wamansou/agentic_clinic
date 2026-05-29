@@ -94,6 +94,12 @@ async def conditions_page(request: Request):
     return templates.TemplateResponse("conditions.html", {"request": request, "user": user})
 
 
+@app.get("/inbox", response_class=HTMLResponse)
+async def inbox_page(request: Request):
+    user = get_current_user(request)
+    return templates.TemplateResponse("inbox.html", {"request": request, "user": user})
+
+
 # =============================================================================
 # API Routes
 # =============================================================================
@@ -216,6 +222,28 @@ async def api_delete_comment(comment_id: int):
     return {"deleted": True}
 
 
+ALLOWED_PROCESSING = {"new", "in_progress", "done", "followup"}
+
+
+@app.get("/api/inbox")
+async def api_inbox():
+    return store.list_inbox()
+
+
+@app.patch("/api/sessions/{session_id}/processing")
+async def api_set_processing(session_id: str, request: Request):
+    from fastapi.responses import JSONResponse
+    data = await request.json()
+    status = data.get("processing_status")
+    if status not in ALLOWED_PROCESSING:
+        return JSONResponse({"error": "invalid processing_status"}, status_code=400)
+    processed_by = (data.get("processed_by") or "").strip() or None
+    updated = store.set_processing(session_id, status, processed_by)
+    if updated is None:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return updated
+
+
 # =============================================================================
 # WebSocket
 # =============================================================================
@@ -278,6 +306,12 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                     result_type=result["type"],
                 )
                 store.save_result(session_id, json.dumps(result_data))
+                if is_handoff:
+                    urgency = result_data.get("urgency") or "high"
+                else:
+                    category = (triage_data.get("category") or "").upper()
+                    urgency = "high" if category == "B" else "normal"
+                store.set_urgency(session_id, urgency)
 
                 # Send triage update with all fields
                 await websocket.send_json({
