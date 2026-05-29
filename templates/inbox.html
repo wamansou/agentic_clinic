@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Inbox{% endblock %}
+{% block nav_inbox_active %}active{% endblock %}
+
+{% block content %}
+<div class="history-page">
+    <div class="history-header">
+        <h2>Patient Inbox</h2>
+        <span class="history-count" id="inboxCount"></span>
+    </div>
+
+    <div class="history-table-wrap">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Priority</th>
+                    <th>Patient</th>
+                    <th>Phone</th>
+                    <th>Condition</th>
+                    <th>Doctor</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Handled by</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="inboxBody">
+                <tr><td colspan="9"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="history-empty" id="inboxEmpty" style="display:none;">
+        <p>No patients waiting. Completed and escalated chats will appear here.</p>
+    </div>
+</div>
+
+<!-- Detail modal (shared with History via session-detail.js) -->
+<div class="modal-overlay" id="detailModal" style="display: none;">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Patient Detail</h3>
+            <button class="modal-close" id="modalClose">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/session-detail.js"></script>
+<script>
+const PROC = { new: 'New', in_progress: 'In progress', followup: 'Needs follow-up', done: 'Done' };
+const DOCTORS = { HS: 'Dr. Skensved (HS)', LB: 'Dr. Bune (LB)' };
+
+function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function urgencyCell(row) {
+    if (row.status === 'escalated') return '<span class="urgency-badge urgency-escalated">Urgent</span>';
+    if (row.urgency === 'immediate') return '<span class="urgency-badge urgency-immediate">Urgent</span>';
+    if (row.urgency === 'high') return '<span class="urgency-badge urgency-high">High</span>';
+    return '<span class="urgency-badge urgency-normal">Normal</span>';
+}
+
+function rowHtml(row) {
+    const t = row.result_type || '';
+    const proc = row.processing_status || 'new';
+    return `<tr class="inbox-row ${proc === 'done' ? 'is-done' : ''}" data-session="${esc(row.session_id)}">
+        <td>${urgencyCell(row)}</td>
+        <td>${esc(row.patient_name) || '—'}</td>
+        <td>${esc(row.phone || '') || '—'}</td>
+        <td>${esc(row.condition_name) || '—'}</td>
+        <td>${esc(DOCTORS[row.doctor] || row.doctor || '') || '—'}</td>
+        <td>${t ? `<span class="type-badge type-${esc(t)}">${esc(t)}</span>` : '—'}</td>
+        <td><span class="proc-badge proc-${proc}">${PROC[proc] || proc}</span></td>
+        <td>${esc(row.processed_by || '') || '—'}</td>
+        <td class="history-date">${esc((row.created_at || '').slice(0, 16))}</td>
+    </tr>`;
+}
+
+function bindRows() {
+    document.querySelectorAll('.inbox-row').forEach(r => {
+        r.addEventListener('click', () => SessionDetail.open(r.dataset.session, 'inbox'));
+    });
+}
+
+async function loadInbox() {
+    const body = document.getElementById('inboxBody');
+    const resp = await fetch('/api/inbox');
+    const rows = await resp.json();
+    document.getElementById('inboxCount').textContent =
+        `${rows.length} patient${rows.length !== 1 ? 's' : ''}`;
+    if (!rows.length) {
+        document.querySelector('.history-table-wrap').style.display = 'none';
+        document.getElementById('inboxEmpty').style.display = 'block';
+        return;
+    }
+    body.innerHTML = rows.map(rowHtml).join('');
+    bindRows();
+}
+
+// Called by session-detail.js after a status change in the modal.
+window.InboxPage = {
+    refreshRow(sessionId, proc, by) {
+        const row = document.querySelector(`.inbox-row[data-session="${sessionId}"]`);
+        if (!row) return;
+        row.classList.toggle('is-done', proc === 'done');
+        const badge = row.querySelector('.proc-badge');
+        badge.className = `proc-badge proc-${proc}`;
+        badge.textContent = PROC[proc] || proc;
+        row.children[7].textContent = by || '—';
+    }
+};
+
+document.addEventListener('DOMContentLoaded', loadInbox);
+</script>
+{% endblock %}
