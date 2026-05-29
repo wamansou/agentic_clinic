@@ -41,7 +41,21 @@ class SessionStore:
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_comments_session ON comments(session_id)"
             )
+            self._ensure_session_columns(conn)
             conn.commit()
+
+    def _ensure_session_columns(self, conn):
+        """Idempotently add inbox-workflow columns to an existing sessions table."""
+        existing = {row[1] for row in conn.execute("PRAGMA table_info(sessions)").fetchall()}
+        migrations = {
+            "processing_status": "TEXT DEFAULT 'new'",
+            "processed_by": "TEXT",
+            "processing_updated_at": "TEXT",
+            "urgency": "TEXT",
+        }
+        for col, decl in migrations.items():
+            if col not in existing:
+                conn.execute(f"ALTER TABLE sessions ADD COLUMN {col} {decl}")
 
     def create_session(self, session_id: str) -> SessionMeta:
         now = datetime.now(timezone.utc)
@@ -104,6 +118,47 @@ class SessionStore:
                 (limit,),
             ).fetchall()
         return [dict(r) for r in rows]
+
+    def list_inbox(self) -> list[dict]:
+        """Actionable sessions (completed/escalated), urgent-first then newest."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT session_id, created_at, patient_name, status, condition_name, "
+                "result_type, processing_status, processed_by, processing_updated_at, urgency "
+                "FROM sessions WHERE status IN ('completed', 'escalated') "
+                "ORDER BY CASE urgency "
+                "  WHEN 'immediate' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END, "
+                "created_at DESC"
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def set_processing(self, session_id: str, processing_status: str,
+                       processed_by: str | None = None) -> dict | None:
+        now = datetime.now(timezone.utc).isoformat()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute(
+                "UPDATE sessions SET processing_status = ?, processed_by = ?, "
+                "processing_updated_at = ? WHERE session_id = ?",
+                (processing_status, processed_by, now, session_id),
+            )
+            conn.commit()
+            if cur.rowcount == 0:
+                return None
+            row = conn.execute(
+                "SELECT session_id, processing_status, processed_by, processing_updated_at "
+                "FROM sessions WHERE session_id = ?", (session_id,),
+            ).fetchone()
+        return dict(row)
+
+    def set_urgency(self, session_id: str, urgency: str):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "UPDATE sessions SET urgency = ? WHERE session_id = ?",
+                (urgency, session_id),
+            )
+            conn.commit()
 
     def save_result(self, session_id: str, result_json: str):
         with sqlite3.connect(self.db_path) as conn:
@@ -216,8 +271,13 @@ class SessionStore:
             return cur.rowcount > 0
 
     def delete_inactive(self) -> int:
-        """Delete all sessions with status 'active' (started but never completed). Returns count deleted."""
+        """Delete all sessions with status 'active' and their comments. Returns count deleted."""
         with sqlite3.connect(self.db_path) as conn:
+            ids = [r[0] for r in conn.execute(
+                "SELECT session_id FROM sessions WHERE status = 'active'"
+            ).fetchall()]
             cursor = conn.execute("DELETE FROM sessions WHERE status = 'active'")
+            for sid in ids:
+                conn.execute("DELETE FROM comments WHERE session_id = ?", (sid,))
             conn.commit()
             return cursor.rowcount
