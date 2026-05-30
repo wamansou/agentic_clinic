@@ -27,12 +27,12 @@ python main.py
 # → http://localhost:8000 (login with DEMO_USER/DEMO_PASS)
 
 # War games (AI-vs-AI testing)
-python -m tests.war_games.run_war_games                          # all 22 scenarios
-python -m tests.war_games.run_war_games --scenario selfpay_smear # one scenario
-python -m tests.war_games.run_war_games --list                   # list scenarios
+python -m tests.war_games.run_war_games                       # all scenarios (29 in scenarios.py)
+python -m tests.war_games.run_war_games --scenario cone_biopsy # one scenario by name
+python -m tests.war_games.run_war_games --list                # list scenarios
 ```
 
-There are no unit tests or linting configured. The war games are the primary test suite — each scenario is a full AI-vs-AI conversation that verifies the triage agent routes correctly (condition ID, doctor, escalation, self-pay, labs, etc.).
+There are no unit tests or linting configured. The war games are the primary test suite — each scenario is a full AI-vs-AI conversation that verifies the triage agent routes correctly (condition ID, doctor, escalation, self-pay, labs, etc.). Each run hits the live LLM and persists its own conversation history to `data/war_games_live.db`.
 
 ## Architecture
 
@@ -75,6 +75,15 @@ Browser ↔ WebSocket /ws/{session_id}
 - **`triage/tools.py`** — Two `@function_tool` wrappers (exposed to LLM) + 6 raw Python functions (used by enrichment). The agent only calls `fetch_condition_details` and `complete_triage`.
 - **`triage/config.py`** — YAML loading, runtime reload, and `build_condition_reference()` which generates the condition lookup table injected into the agent prompt.
 - **`triage/models.py`** — `TriageData` (agent output), `BookingRequest` (enriched booking), `HandoffRequest` (staff escalation).
+- **`triage/api.py`** — FastAPI app: login, dashboard (`/`), history (`/history`), condition editor (`/conditions`), the `/ws/{session_id}` chat WebSocket, and the `/api/conditions*` CRUD routes. `AuthMiddleware` gates everything behind the demo login.
+- **`triage/auth.py`** — Cookie-based demo auth (single `DEMO_USER`/`DEMO_PASS` account); login/logout handlers and the `login_required` check used by the middleware.
+- **`triage/session_store.py`** — `SessionStore`: dashboard metadata in `data/dashboard.db`, plus reads transcripts back out of the SDK's `data/triage_sessions.db` for the history view.
+
+### Web/admin layer
+
+The `/conditions` page is a live editor for `conditions.yaml`. Saving (`POST /api/conditions`, `/api/conditions/{id}`, or `/api/conditions/reload`) calls `config.update_condition`/`reload_conditions`, which rewrites the YAML and reloads it in-process — so edits take effect on the next triage turn without a restart (see "Dynamic prompt injection" above).
+
+Runtime SQLite DBs all live in the gitignored `data/` dir: `triage_sessions.db` (SDK conversation history), `dashboard.db` (session metadata), `war_games_live.db` (war game runs).
 
 ## Condition Categories
 
