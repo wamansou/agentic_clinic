@@ -120,18 +120,35 @@ class SessionStore:
         return [dict(r) for r in rows]
 
     def list_inbox(self) -> list[dict]:
-        """Actionable sessions (completed/escalated), urgent-first then newest."""
+        """Actionable sessions (completed/escalated), urgent-first then newest.
+        Each row is enriched with phone and doctor parsed from the stored result JSON."""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT session_id, created_at, patient_name, status, condition_name, "
-                "result_type, processing_status, processed_by, processing_updated_at, urgency "
+                "result_type, processing_status, processed_by, processing_updated_at, urgency, "
+                "result_json "
                 "FROM sessions WHERE status IN ('completed', 'escalated') "
                 "ORDER BY CASE urgency "
                 "  WHEN 'immediate' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END, "
                 "created_at DESC"
             ).fetchall()
-        return [dict(r) for r in rows]
+        enriched = []
+        for r in rows:
+            row = dict(r)
+            raw = row.pop("result_json", None)
+            phone, doctor = None, None
+            if raw:
+                try:
+                    triage = (json.loads(raw) or {}).get("triage") or {}
+                    phone = triage.get("phone_number")
+                    doctor = triage.get("doctor")
+                except (json.JSONDecodeError, TypeError, AttributeError):
+                    pass
+            row["phone"] = phone
+            row["doctor"] = doctor
+            enriched.append(row)
+        return enriched
 
     def set_processing(self, session_id: str, processing_status: str,
                        processed_by: str | None = None) -> dict | None:
