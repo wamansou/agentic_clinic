@@ -14,6 +14,36 @@
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
+
+  function copyText(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(
+          () => flash('copyBtn', 'Copied!'),
+          () => fallbackCopy(text)
+        );
+        return;
+      }
+    } catch (e) { /* fall through to legacy path */ }
+    fallbackCopy(text);
+  }
+
+  function fallbackCopy(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (ok) { flash('copyBtn', 'Copied!'); return; }
+    } catch (e) { /* fall through to prompt */ }
+    window.prompt('Copy this text:', text);
+  }
+
   function field(label, val) {
     return val ? `<div class="result-field"><span class="result-field-label">${label}</span>` +
       `<span class="result-field-value">${esc(val)}</span></div>` : '';
@@ -32,12 +62,16 @@
 
   function renderConversation(d) {
     if (!d.conversation || !d.conversation.length) return '';
-    let h = '<div class="detail-result"><h4>Conversation</h4><div class="conversation-display">';
+    const openAttr = mode === 'history' ? ' open' : '';
+    const n = d.conversation.length;
+    let h = `<details class="detail-result conv-details"${openAttr}>` +
+      `<summary class="conv-summary">Conversation (${n} message${n !== 1 ? 's' : ''})</summary>` +
+      '<div class="conversation-display">';
     for (const m of d.conversation) {
       const role = m.role === 'user' ? 'patient' : 'agent';
       h += `<div class="conv-msg conv-msg-${role}"><div class="conv-bubble conv-bubble-${role}">${esc(m.content)}</div></div>`;
     }
-    h += '</div></div>';
+    h += '</div></details>';
     return h;
   }
 
@@ -163,13 +197,7 @@
   }
 
   function bindExport(d) {
-    document.getElementById('copyBtn').onclick = () => {
-      const text = buildExportText(d);
-      navigator.clipboard.writeText(text).then(
-        () => flash('copyBtn', 'Copied!'),
-        () => { window.prompt('Copy this text:', text); }
-      );
-    };
+    document.getElementById('copyBtn').onclick = () => copyText(buildExportText(d));
     document.getElementById('printBtn').onclick = () => window.print();
   }
 
