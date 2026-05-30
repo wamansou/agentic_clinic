@@ -1121,7 +1121,7 @@ body {
 .board-error { color: #c0392b; font-size: 13px; min-height: 16px; margin: 0 0 6px; }
 
 .inbox-board { display: flex; gap: 14px; align-items: flex-start; overflow-x: auto; }
-.inbox-col { flex: 1 1 0; min-width: 240px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 10px; padding: 10px; }
+.inbox-col { flex: 0 0 300px; width: 300px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 10px; padding: 10px; }
 .col-head { font-weight: 600; font-size: 13px; color: var(--gray-700); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .col-count { background: var(--gray-200); border-radius: 999px; padding: 0 7px; font-size: 12px; }
 .col-body { display: flex; flex-direction: column; gap: 8px; max-height: 65vh; overflow-y: auto; }
@@ -1133,8 +1133,8 @@ body {
 .inbox-card:hover { border-color: var(--gray-400); }
 .card-main { cursor: pointer; flex: 1; min-width: 0; }
 .card-top { display: flex; align-items: center; gap: 6px; }
-.card-name { font-weight: 600; }
-.card-cond { font-size: 13px; color: var(--gray-600); margin: 2px 0 6px; }
+.card-name { font-weight: 600; overflow-wrap: anywhere; }
+.card-cond { font-size: 13px; color: var(--gray-600); margin: 2px 0 6px; overflow-wrap: anywhere; }
 .card-meta { display: flex; align-items: center; gap: 8px; }
 .card-by { font-size: 11px; color: var(--gray-500); }
 .card-flag-urgent { color: #c0392b; font-size: 12px; }
