@@ -1103,3 +1103,51 @@ body {
   .modal-card { box-shadow: none; max-height: none; width: 100%; }
   .modal-close, .export-actions, .processing-controls, .note-form, .note-actions { display: none !important; }
 }
+
+/* ===== Inbox v2: tabs, filters, kanban board ===== */
+.inbox-tabs { display: flex; gap: 4px; margin: 8px 0 12px; border-bottom: 1px solid var(--gray-200); }
+.tab-btn { background: none; border: none; padding: 8px 14px; cursor: pointer; font: inherit; color: var(--gray-600); border-bottom: 2px solid transparent; }
+.tab-btn.active { color: var(--gray-800); border-bottom-color: var(--gray-800); font-weight: 600; }
+.tab-count { display: inline-block; min-width: 18px; padding: 0 6px; border-radius: 999px; background: var(--gray-100); font-size: 12px; }
+
+.inbox-filters { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.filter-chips { display: flex; align-items: center; gap: 6px; }
+.filter-label { font-size: 12px; color: var(--gray-500); }
+.type-chip { padding: 4px 10px; border: 1px solid var(--gray-300); border-radius: 999px; background: #fff; cursor: pointer; font-size: 13px; }
+.type-chip.active { background: var(--gray-800); color: #fff; border-color: var(--gray-800); }
+.urgent-toggle { font-size: 13px; color: var(--gray-600); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.inbox-search { padding: 6px 10px; border: 1px solid var(--gray-300); border-radius: 6px; font: inherit; min-width: 220px; margin-left: auto; }
+
+.board-error { color: #c0392b; font-size: 13px; min-height: 16px; margin: 0 0 6px; }
+
+.inbox-board { display: flex; gap: 14px; align-items: flex-start; overflow-x: auto; }
+.inbox-col { flex: 1 1 0; min-width: 240px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 10px; padding: 10px; }
+.col-head { font-weight: 600; font-size: 13px; color: var(--gray-700); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.col-count { background: var(--gray-200); border-radius: 999px; padding: 0 7px; font-size: 12px; }
+.col-body { display: flex; flex-direction: column; gap: 8px; max-height: 65vh; overflow-y: auto; }
+.col-empty { color: var(--gray-400); font-size: 13px; font-style: italic; padding: 8px; text-align: center; }
+
+.done-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+
+.inbox-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; gap: 8px; }
+.inbox-card:hover { border-color: var(--gray-400); }
+.card-main { cursor: pointer; flex: 1; min-width: 0; }
+.card-top { display: flex; align-items: center; gap: 6px; }
+.card-name { font-weight: 600; }
+.card-cond { font-size: 13px; color: var(--gray-600); margin: 2px 0 6px; }
+.card-meta { display: flex; align-items: center; gap: 8px; }
+.card-by { font-size: 11px; color: var(--gray-500); }
+.card-flag-urgent { color: #c0392b; font-size: 12px; }
+.card-flag-high { background: #fff4e5; color: #b35900; border-radius: 999px; padding: 1px 6px; font-size: 11px; font-weight: 600; }
+
+.card-actions { position: relative; display: flex; align-items: flex-start; gap: 4px; }
+.card-advance, .card-menu-btn { background: none; border: 1px solid var(--gray-300); border-radius: 6px; width: 26px; height: 26px; cursor: pointer; line-height: 1; color: var(--gray-700); }
+.card-advance:hover, .card-menu-btn:hover { background: var(--gray-100); }
+.card-menu { position: absolute; top: 30px; right: 0; z-index: 10; background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; box-shadow: var(--shadow-md, 0 4px 14px rgba(0,0,0,0.12)); display: flex; flex-direction: column; min-width: 150px; padding: 4px; }
+.card-menu-item { background: none; border: none; text-align: left; padding: 7px 10px; border-radius: 6px; cursor: pointer; font: inherit; }
+.card-menu-item:hover:not([disabled]) { background: var(--gray-100); }
+.card-menu-item[disabled] { color: var(--gray-400); cursor: default; }
+
+/* Collapsible conversation in the detail modal */
+.conv-details > .conv-summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.conv-details[open] > .conv-summary { margin-bottom: 6px; }
