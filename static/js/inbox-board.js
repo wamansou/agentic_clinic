@@ -105,8 +105,15 @@
       const menu = card.querySelector('.card-menu');
       menuBtn.onclick = (e) => {
         e.stopPropagation();
-        document.querySelectorAll('.card-menu').forEach(m => { if (m !== menu) m.hidden = true; });
-        menu.hidden = !menu.hidden;
+        const willOpen = menu.hidden;
+        document.querySelectorAll('.card-menu').forEach(m => { m.hidden = true; });
+        if (willOpen) {
+          // Position as a fixed popover so the column's overflow can't clip it.
+          const rect = menuBtn.getBoundingClientRect();
+          menu.style.top = (rect.bottom + 4) + 'px';
+          menu.style.left = Math.max(8, Math.min(rect.right - 150, window.innerWidth - 158)) + 'px';
+          menu.hidden = false;
+        }
       };
       menu.querySelectorAll('.card-menu-item').forEach(item => {
         if (item.disabled) return;
@@ -148,10 +155,10 @@
     });
     document.getElementById('urgentToggle').onchange = (e) => { filters.urgentOnly = e.target.checked; render(); };
     document.getElementById('searchBox').oninput = (e) => { filters.search = e.target.value; render(); };
-    // Click anywhere else closes any open card menu.
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.card-menu').forEach(m => { m.hidden = true; });
-    });
+    // Click anywhere else, or any scroll, closes any open card menu.
+    const closeMenus = () => document.querySelectorAll('.card-menu').forEach(m => { m.hidden = true; });
+    document.addEventListener('click', closeMenus);
+    document.addEventListener('scroll', closeMenus, true);
   }
 
   async function load() {
