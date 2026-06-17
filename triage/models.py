@@ -17,6 +17,7 @@ class TriageData(BaseModel):
     # Intake
     patient_name: str | None = None
     phone_number: str | None = None
+    cpr_number: str | None = None  # Danish CPR (DDMMYY-XXXX); "declined" if patient refuses
     insurance_type: str | None = None  # "public", "dss"
     has_referral: bool | None = None
     is_followup: bool = False

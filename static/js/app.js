@@ -239,6 +239,7 @@
     const FIELD_MAP = {
         patient_name: 'Patient',
         phone_number: 'Phone',
+        cpr_number: 'CPR',
         language: 'Language',
         insurance_type: 'Insurance',
         has_referral: 'Referral',
@@ -316,6 +317,7 @@
         const triage = (result.triage) || {};
         if (triage.patient_name) html += renderField('Patient', triage.patient_name);
         if (triage.phone_number) html += renderField('Phone', triage.phone_number);
+        if (triage.cpr_number) html += renderField('CPR', triage.cpr_number);
         if (triage.insurance_type) html += renderField('Insurance', triage.insurance_type === 'public' ? 'Public (sygesikring)' : 'DSS / Private');
         if (triage.condition_name) html += renderField('Condition', triage.condition_name);
         if (triage.category) html += renderField('Category', CATEGORY_LABELS[triage.category] || triage.category);

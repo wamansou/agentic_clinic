@@ -34,6 +34,7 @@ You are role-playing the scenario described below. Behave like a REAL patient:
 === YOUR DETAILS ===
 Name: {name}
 Phone: {phone}
+CPR number: {cpr}
 """
 
 
@@ -60,6 +61,7 @@ async def simulate_patient(
         scenario=scenario["persona"],
         name=scenario.get("patient_name", "Anna Jensen"),
         phone=scenario.get("phone", "55512345"),
+        cpr=scenario.get("cpr", "150785-1234"),
         language_instruction=lang_inst,
     )
 
