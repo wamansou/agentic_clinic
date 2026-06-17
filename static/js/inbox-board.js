@@ -28,7 +28,7 @@
     if (filters.urgentOnly && !isUrgent(r)) return false;
     const q = filters.search.trim().toLowerCase();
     if (q) {
-      const hay = [r.patient_name, r.condition_name, r.phone].map(x => (x || '').toLowerCase()).join(' ');
+      const hay = [r.patient_name, r.condition_name, r.phone, r.cpr].map(x => (x || '').toLowerCase()).join(' ');
       if (!hay.includes(q)) return false;
     }
     return true;

@@ -121,7 +121,7 @@ class SessionStore:
 
     def list_inbox(self) -> list[dict]:
         """Actionable sessions (completed/escalated), urgent-first then newest.
-        Each row is enriched with phone and doctor parsed from the stored result JSON."""
+        Each row is enriched with phone, CPR, and doctor parsed from the stored result JSON."""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
@@ -137,15 +137,17 @@ class SessionStore:
         for r in rows:
             row = dict(r)
             raw = row.pop("result_json", None)
-            phone, doctor = None, None
+            phone, cpr, doctor = None, None, None
             if raw:
                 try:
                     triage = (json.loads(raw) or {}).get("triage") or {}
                     phone = triage.get("phone_number")
+                    cpr = triage.get("cpr_number")
                     doctor = triage.get("doctor")
                 except (json.JSONDecodeError, TypeError, AttributeError):
                     pass
             row["phone"] = phone
+            row["cpr"] = cpr
             row["doctor"] = doctor
             enriched.append(row)
         return enriched

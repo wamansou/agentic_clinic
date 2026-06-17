@@ -191,12 +191,15 @@ SCENARIOS = [
         "expect": {"condition_id": 33, "doctor": "LB"},
     },
     {
-        "name": "doctor_preference_override",
-        "persona": "Your GP referred you for a cystoscopy. You have public insurance and a referral. When asked about doctor preference, you specifically want to see Dr. Bune (LB).",
+        "name": "doctor_preference_ignored",
+        "persona": "Your GP referred you for a cystoscopy. You have public insurance and a referral. At some point you mention you'd really like to see Dr. Bune (LB) specifically.",
         "patient_name": "Sofie Jørgensen",
         "phone": "77881122",
         "expect_escalation": False,
-        "expect": {"condition_id": 42, "doctor": "LB"},
+        # The clinic no longer honors patient doctor preference — internal routing must
+        # still assign cystoscopy (condition 42) to its default doctor, HS, not the
+        # requested LB.
+        "expect": {"condition_id": 42, "doctor": "HS"},
     },
     {
         "name": "unclassifiable_escalation",

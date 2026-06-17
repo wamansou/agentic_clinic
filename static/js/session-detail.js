@@ -81,6 +81,7 @@
     let h = '<div class="detail-result"><h4>' + (isHandoff ? 'Staff Handoff' : 'Booking Result') + '</h4>';
     h += field('Patient', t.patient_name);
     h += field('Phone', t.phone_number);
+    h += field('CPR', t.cpr_number);
     h += field('Insurance', t.insurance_type === 'public' ? 'Public (sygesikring)'
       : t.insurance_type === 'dss' ? 'DSS / Private' : t.insurance_type);
     h += field('Condition', t.condition_name);
@@ -206,6 +207,7 @@
     const add = (k, v) => { if (v) lines.push(`${k}: ${v}`); };
     add('Patient', t.patient_name || d.patient_name);
     add('Phone', t.phone_number);
+    add('CPR', t.cpr_number);
     add('Insurance', t.insurance_type);
     add('Condition', t.condition_name || d.condition_name);
     add('Category', t.category);

@@ -14,7 +14,7 @@
             <p>Before we begin, we need your consent to process personal data in accordance with the <strong>EU General Data Protection Regulation (GDPR)</strong>.</p>
             <p>During this triage conversation, Gynækologerne Skensved og Bune will collect and process:</p>
             <ul>
-                <li><strong>Identification data</strong> &mdash; name and phone number</li>
+                <li><strong>Identification data</strong> &mdash; name, phone number, and CPR number</li>
                 <li><strong>Health data</strong> &mdash; symptoms, medical conditions, menstrual cycle information, and other health-related details you provide</li>
                 <li><strong>Insurance and referral status</strong></li>
             </ul>
@@ -85,6 +85,10 @@
                     <span class="triage-field-label">Phone</span>
                     <span class="triage-field-value" id="tf-phone_number">—</span>
                 </div>
+                <div class="triage-field" data-field="cpr_number">
+                    <span class="triage-field-label">CPR</span>
+                    <span class="triage-field-value" id="tf-cpr_number">—</span>
+                </div>
                 <div class="triage-field" data-field="language">
                     <span class="triage-field-label">Language</span>
                     <span class="triage-field-value" id="tf-language">—</span>
@@ -133,5 +137,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/app.js?v=20260308e"></script>
+<script src="/static/js/app.js?v=20260617a"></script>
 {% endblock %}

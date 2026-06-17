@@ -46,7 +46,7 @@ Browser ↔ WebSocket /ws/{session_id}
               │
               ├─ [1] triage_agent (multi-turn conversation)
               │     Tools: fetch_condition_details, complete_triage
-              │     Collects: insurance, name, phone, condition, cycle info
+              │     Collects: name, phone, CPR, insurance, condition, cycle info
               │     Outputs: TriageData (via complete_triage tool)
               │
               ├─ [2] Deterministic Python (NO LLM)
@@ -93,15 +93,16 @@ Runtime SQLite DBs all live in the gitignored `data/` dir: `triage_sessions.db` 
 
 ## Domain-Specific Rules
 
-- **Doctor routing:** Two doctors — Dr. HS (Skensved) and Dr. LB. Routing depends on condition, patient age (>45 for bleeding), IUD string visibility, menopause history, and fertility context.
+- **Doctor routing:** Two doctors — Dr. HS (Skensved) and Dr. LB. Routing is **internal only** — the agent never asks the patient for a doctor preference. It depends on condition, patient age (>45 for bleeding), IUD string visibility, menopause history, and fertility context. If a patient volunteers a preferred doctor, it is acknowledged but does not change the assignment.
+- **CPR number:** The agent collects the patient's CPR number (Danish social security, 10 digits) for **every** case — bookings and escalations alike — so staff don't have to call each patient back. `complete_triage` rejects any call with an empty `cpr_number`; the agent records `cpr_number="declined"` if the patient refuses (or, for a distressed Category A emergency, cannot provide it).
 - **DSS/private insurance:** Always hand off to staff.
 - **Cycle-dependent procedures:** 9 procedures require booking on specific menstrual cycle days.
 - **Condition groups:** 9 ambiguous keyword groups require clarifying questions to disambiguate.
 - **Languages:** Danish (primary), English, Ukrainian. Agent must match the language of the patient's most recent message.
 - **Self-pay path:** Patients without referrals can proceed as self-pay for certain conditions.
-- **Referral is active:** The agent asks about referrals at step 5 (after condition identification) for all non-abortion cases. If no referral, the agent then asks about insurance to detect DSS/self-pay.
+- **Referral is active:** The agent asks about referrals at step 6 (after condition identification) for all non-abortion cases. If no referral, the agent then asks about insurance to detect DSS/self-pay.
 - **Yellow card (insurance) question:** Only asked for abortion cases (condition 5) upfront, or when a non-abortion patient says they have no referral.
 
 ## War Games Testing
 
-War game scenarios (`tests/war_games/scenarios.py`) define patient personas with expected outcomes. The runner (`tests/war_games/runner.py`) spins up an LLM-powered patient simulator that converses with the triage agent, then verifies the output matches `expect` fields (condition_id, doctor, category, self_pay, etc.) and `expect_escalation`. Scenarios cover Category A emergencies, DSS escalation, group disambiguation, cycle-dependent bookings, self-pay pricing, doctor preference overrides, and edge cases.
+War game scenarios (`tests/war_games/scenarios.py`) define patient personas with expected outcomes. The runner (`tests/war_games/runner.py`) spins up an LLM-powered patient simulator that converses with the triage agent, then verifies the output matches `expect` fields (condition_id, doctor, category, self_pay, etc.) and `expect_escalation`. Scenarios cover Category A emergencies, DSS escalation, group disambiguation, cycle-dependent bookings, self-pay pricing, internal doctor routing (patient preference is ignored), and edge cases.

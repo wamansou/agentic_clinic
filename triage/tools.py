@@ -184,6 +184,16 @@ def fetch_condition_details(condition_id: int) -> str:
 def complete_triage(data: TriageData) -> str:
     """Call this when you have collected all required information from the patient.
     Fill in ALL fields you have gathered. For escalations, set escalate=true and provide escalation_reason."""
+    # CPR is required for EVERY case (booking and escalation) so staff don't have to call back.
+    if not data.cpr_number:
+        return (
+            "ERROR: cpr_number is required for ALL cases. You MUST ask the patient for "
+            "their CPR number (10 digits): \"Could I have your CPR number?\" / "
+            "\"Må jeg få dit CPR-nummer?\". Store it in cpr_number. "
+            "If the patient explicitly refuses or genuinely cannot provide it (or is a "
+            "distressed Category A emergency), set cpr_number=\"declined\" so staff can "
+            "follow up. Do NOT call complete_triage with an empty cpr_number."
+        )
     if not data.escalate:
         if data.condition_id is None:
             return (
