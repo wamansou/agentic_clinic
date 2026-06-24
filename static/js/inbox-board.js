@@ -17,6 +17,29 @@
   function statusOf(r) { return r.processing_status || 'new'; }
   function isUrgent(r) { return r.status === 'escalated' || r.urgency === 'immediate'; }
 
+  const CONF = { none: '', pending: 'Awaiting confirmation', confirmed: 'Confirmed ✓',
+                 expired: 'Unconfirmed — follow up', cancelled: 'Cancelled' };
+  function confOf(r) { return r.confirmation || 'none'; }
+  function isBooking(r) { return (r.result_type || '') === 'booking'; }
+  function needsAttention(r) { return isUrgent(r) || confOf(r) === 'expired'; }
+  function isClosed(r) { return statusOf(r) === 'done' || confOf(r) === 'cancelled'; }
+  function confBadge(r) {
+    const c = confOf(r);
+    if (!isBooking(r) || c === 'none') return '';
+    let txt = CONF[c];
+    if (c === 'pending' && r.confirmation_hours_left != null) {
+      txt += ' · ' + Math.ceil(r.confirmation_hours_left) + 'h left';
+    }
+    return `<span class="conf-badge conf-${c}">${esc(txt)}</span>`;
+  }
+  function confActions(r) {
+    if (!isBooking(r)) return '';
+    const c = confOf(r);
+    if (c === 'none') return `<button class="conf-book" title="Mark booked & send SMS">Mark booked</button>`;
+    if (c === 'expired') return `<button class="conf-cancel" title="Mark cancelled">Cancelled</button>`;
+    return '';
+  }
+
   function urgencyFlag(r) {
     if (isUrgent(r)) return '<span class="card-flag card-flag-urgent" title="Urgent">●</span>';
     if (r.urgency === 'high') return '<span class="card-flag card-flag-high">High</span>';
@@ -35,7 +58,7 @@
   }
 
   function sortCards(a, b) {
-    const ua = isUrgent(a) ? 0 : 1, ub = isUrgent(b) ? 0 : 1;
+    const ua = needsAttention(a) ? 0 : 1, ub = needsAttention(b) ? 0 : 1;
     if (ua !== ub) return ua - ub;
     return (b.created_at || '').localeCompare(a.created_at || '');
   }
@@ -51,10 +74,12 @@
         <div class="card-cond">${esc(r.condition_name) || '—'}</div>
         <div class="card-meta">
           ${t ? `<span class="type-badge type-${esc(t)}">${esc(t)}</span>` : ''}
+          ${confBadge(r)}
           ${r.processed_by ? `<span class="card-by">${esc(r.processed_by)}</span>` : ''}
         </div>
       </div>
       <div class="card-actions">
+        ${confActions(r)}
         ${canAdvance ? `<button class="card-advance" data-to="${next}" title="Move to ${PROC[next]}">▸</button>` : ''}
         <button class="card-menu-btn" title="Move to…">⋯</button>
         <div class="card-menu" hidden>
@@ -74,8 +99,8 @@
 
   function render() {
     const visible = rows.filter(passesFilters);
-    const activeRows = visible.filter(r => statusOf(r) !== 'done');
-    const doneRows = visible.filter(r => statusOf(r) === 'done');
+    const activeRows = visible.filter(r => !isClosed(r));
+    const doneRows = visible.filter(r => isClosed(r));
 
     document.getElementById('tabActiveCount').textContent = activeRows.length;
     document.getElementById('tabDoneCount').textContent = doneRows.length;
@@ -101,6 +126,10 @@
       card.querySelector('.card-main').onclick = () => SessionDetail.open(sid, 'inbox');
       const adv = card.querySelector('.card-advance');
       if (adv) adv.onclick = (e) => { e.stopPropagation(); moveCard(sid, adv.dataset.to); };
+      const bookBtn = card.querySelector('.conf-book');
+      if (bookBtn) bookBtn.onclick = (e) => { e.stopPropagation(); bookCard(sid); };
+      const cancelBtn = card.querySelector('.conf-cancel');
+      if (cancelBtn) cancelBtn.onclick = (e) => { e.stopPropagation(); cancelCard(sid); };
       const menuBtn = card.querySelector('.card-menu-btn');
       const menu = card.querySelector('.card-menu');
       menuBtn.onclick = (e) => {
@@ -133,6 +162,23 @@
       if (row) { row.processing_status = toStatus; if (by) row.processed_by = by; }
       render();
     }).catch(() => showError('Could not update status.'));
+  }
+
+  function bookCard(sessionId) {
+    fetch(`/api/sessions/${sessionId}/book`, { method: 'POST' }).then(async r => {
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) { showError(data.error || 'Could not send confirmation.'); return; }
+      if (data.confirm_url) window.prompt('Confirmation SMS sent. Demo link:', data.confirm_url);
+      load();
+    }).catch(() => showError('Could not send confirmation.'));
+  }
+
+  function cancelCard(sessionId) {
+    if (!window.confirm('Mark this booking cancelled? Release the slot in the clinic system first.')) return;
+    fetch(`/api/sessions/${sessionId}/cancel`, { method: 'POST' }).then(async r => {
+      if (!r.ok) { const d = await r.json().catch(() => ({})); showError(d.error || 'Could not cancel.'); return; }
+      load();
+    }).catch(() => showError('Could not cancel.'));
   }
 
   function showError(msg) {
