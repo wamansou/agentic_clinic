@@ -16,7 +16,7 @@ COOKIE_SECRET = os.getenv("COOKIE_SECRET", secrets.token_hex(32))
 COOKIE_MAX_AGE = 60 * 60 * 24  # 24 hours
 
 EXEMPT_PATHS = {"/login", "/health"}
-EXEMPT_PREFIXES = ("/static/",)
+EXEMPT_PREFIXES = ("/static/", "/confirm/")
 
 
 def _sign(value: str) -> str:

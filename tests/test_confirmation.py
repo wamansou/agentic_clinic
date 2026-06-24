@@ -183,6 +183,42 @@ def test_list_inbox_exposes_confirmation():
 
 
 # ---------------------------------------------------------------------------
+# Task 4 — API routes (public confirm page)
+# ---------------------------------------------------------------------------
+
+@test
+def test_confirm_route_public_and_confirms():
+    try:
+        from fastapi.testclient import TestClient
+    except Exception:  # noqa: BLE001
+        print("  (skipped: TestClient/httpx unavailable)")
+        return
+    import triage.api as api_mod
+    from triage.session_store import SessionStore
+
+    d = tempfile.mkdtemp()
+    temp = SessionStore(Path(d) / "dash.db")
+    temp.create_session("apis1")
+    temp.update_session("apis1", status="completed", result_type="booking", patient_name="T")
+    temp.save_result("apis1", json.dumps({"triage": {"phone_number": "12345678", "language": "da"}}))
+
+    orig = api_mod.store
+    api_mod.store = temp
+    try:
+        client = TestClient(api_mod.app)
+        # /book requires auth -> 401 without cookie
+        assert client.post("/api/sessions/apis1/book").status_code == 401
+        # mint a token directly, then confirm via the PUBLIC route (no auth)
+        token = temp.mark_booked("apis1")["token"]
+        assert client.get(f"/confirm/{token}").status_code == 200
+        r = client.post(f"/confirm/{token}")
+        assert r.status_code == 200 and ("Bekræftet" in r.text or "Confirmed" in r.text), r.text[:200]
+        assert temp.get_session("apis1")["confirmation"] == "confirmed"
+    finally:
+        api_mod.store = orig
+
+
+# ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
 
