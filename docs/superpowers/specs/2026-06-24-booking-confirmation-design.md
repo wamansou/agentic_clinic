@@ -14,11 +14,17 @@ to clinic staff for follow-up (the clinic phones them).
 
 ## Constraints & key decisions
 
-- **Delivery channel: SMS** to the `phone_number` already collected during
-  triage. No new patient field is needed. SMS is sent via a **pluggable
-  provider**; for the demo we ship a **console/log stub** (`ConsoleSmsSender`).
-  A real provider (e.g. Twilio) is a documented, env-selected slot, not built
-  for the demo.
+- **Phone number is now mandatory for every patient.** An SMS target is
+  required, so `complete_triage` is changed to **reject an empty
+  `phone_number`** (same gate pattern already used for `cpr_number` /
+  `condition_id` / `doctor`), and the triage prompt is updated to treat phone as
+  required. (Multi-channel intake — WhatsApp/Facebook — is *not* built; the
+  system is web-chat only. "Across channels" is the product intent; the concrete,
+  buildable part is the enforcement.)
+- **Delivery channel: SMS** to the `phone_number` collected during triage. SMS
+  is sent via a **pluggable provider**; for the demo we ship a **console/log
+  stub** (`ConsoleSmsSender`). A real provider (e.g. Twilio) is a documented,
+  env-selected slot, not built for the demo.
 - **Trigger: secretary marks the case "booked."** The confirmation SMS is sent
   at that point — not at end of triage — because the patient is confirming an
   appointment the secretary has actually booked. Matches the client's wording
@@ -27,7 +33,20 @@ to clinic staff for follow-up (the clinic phones them).
 - **Expiry: no auto-cancel.** The app has no access to the clinic's booking
   system, so it cannot cancel anything. After 48h with no click, the case is
   shown as **`expired` (unconfirmed)** and resurfaces in the inbox so a
-  secretary can phone the patient. A human decides what to do.
+  secretary can phone the patient and release the slot in the clinic's own
+  system. A human decides what to do.
+- **Manual `cancelled` state.** Once the secretary has released the slot for an
+  expired (or pending) booking in the clinic system, she clicks **"Cancelled"**
+  in our inbox to close the case out and clear it from the active board. This is
+  a record-keeping/audit state in our app — it does **not** cancel anything in
+  the external booking system.
+- **Confirmation and secretary workflow stay independent.** Patient
+  confirmation sets `confirmation_status='confirmed'` but does **not** auto-move
+  the secretary's `processing_status` to `done`; the secretary closes the case
+  herself. The two dimensions are tracked separately.
+- **Confirmation page collects nothing extra for the demo** — a single
+  "Confirm" button over an appointment summary. The page is structured so input
+  fields can be added later without rework, but none are built now.
 - **Expiry is derived on read**, not driven by a background job: a `pending`
   confirmation older than `CONFIRMATION_TTL_HOURS` is presented as `expired`
   whenever the inbox/session is read. No scheduler is added. (A scheduled sweep
@@ -39,14 +58,17 @@ to clinic staff for follow-up (the clinic phones them).
 ## Lifecycle
 
 ```
-none ──(secretary: "Mark booked & send SMS")──▶ pending ──(patient clicks link, POST)──▶ confirmed
-                                                   │
-                                                   └──(now > sent_at + 48h, no click)──▶ expired   [derived on read]
+none ─(secretary: "Mark booked & send SMS")─▶ pending ─(patient clicks link, POST)─▶ confirmed
+                                                 │
+                                                 ├─(now > sent_at + 48h, no click)─▶ expired  [derived on read]
+                                                 │
+                                                 └────────(secretary: "Cancelled")───────────▶ cancelled
+expired ──(secretary: "Cancelled")──▶ cancelled
 ```
 
 `confirmation_status` is independent of the existing secretary workflow
 (`processing_status`: `new` / `in_progress` / `followup` / `done`). The two
-dimensions coexist.
+dimensions coexist; confirming does **not** auto-complete the workflow.
 
 ## Data model
 
@@ -56,14 +78,17 @@ migration step:
 
 | Column | Type | Meaning |
 |---|---|---|
-| `confirmation_status` | TEXT DEFAULT 'none' | `none` / `pending` / `confirmed` |
+| `confirmation_status` | TEXT DEFAULT 'none' | `none` / `pending` / `confirmed` / `cancelled` |
 | `confirmation_token` | TEXT | random URL-safe token (`secrets.token_urlsafe`), unguessable, nullable |
 | `confirmation_sent_at` | TEXT | ISO-8601 UTC timestamp the SMS went out |
 | `confirmation_confirmed_at` | TEXT | ISO-8601 UTC timestamp the patient confirmed |
+| `confirmation_cancelled_at` | TEXT | ISO-8601 UTC timestamp the secretary marked it cancelled |
 
-`expired` is **not stored**. A helper `effective_confirmation_status(row, now)`
-returns `expired` when `confirmation_status == 'pending'` and
-`now > sent_at + CONFIRMATION_TTL_HOURS`; otherwise the stored value.
+`expired` is **not stored** — it is a derived view of a `pending` row. A helper
+`effective_confirmation_status(row, now)` returns `expired` when
+`confirmation_status == 'pending'` and `now > sent_at + CONFIRMATION_TTL_HOURS`;
+otherwise the stored value (`none`/`pending`/`confirmed`/`cancelled`). A NULL
+stored value is treated as `none`.
 
 ## Components
 
@@ -92,7 +117,10 @@ New env vars (with defaults so the demo runs with no config):
   the session is not a booking.
 - `confirm_by_token(token) -> dict` — resolves the token. Outcomes:
   `confirmed` (success, sets `confirmed_at`), `expired`, `already_confirmed`,
-  `invalid` (unknown token).
+  `cancelled` (the booking was cancelled by staff), `invalid` (unknown token).
+- `cancel_booking(session_id) -> dict` — secretary action: sets
+  `confirmation_status='cancelled'` + `confirmation_cancelled_at`. Valid from
+  `pending`/`expired` (and idempotent if already `cancelled`).
 - `list_inbox` / `get_session` enrichment extended with effective
   `confirmation_status` and an `hours_left` value for `pending` rows.
 
@@ -106,7 +134,9 @@ New env vars (with defaults so the demo runs with no config):
   "Confirm appointment" button.
 - `POST /confirm/{token}` *(PUBLIC)* — performs the confirmation (button submit),
   so SMS link-preview scanners cannot auto-confirm via a GET. Renders
-  success / expired / invalid / already-confirmed states.
+  success / expired / invalid / already-confirmed / cancelled states.
+- `POST /api/sessions/{id}/cancel` *(behind login)* — secretary action:
+  `cancel_booking`. Returns the new status.
 - `AuthMiddleware` public allowlist extended with `/confirm` (the only
   patient-facing public surface), alongside existing `/login`, `/static`,
   `/health`.
@@ -118,16 +148,24 @@ Per booking card, a confirmation badge + action:
 - `none` → **"Mark booked & send SMS"** button → `POST …/book`; on success the
   badge becomes `pending` and the demo link is shown.
 - `pending` → "Awaiting confirmation · {N}h left" (amber).
-- `confirmed` → "Confirmed ✓" (green).
+- `confirmed` → "Confirmed ✓" (green). The case stays on the active board until
+  the secretary moves it to Done herself (confirmation does not auto-complete
+  the workflow).
 - `expired` → **"Unconfirmed — follow up"** (red), **pinned to the top** of the
-  board by reusing the existing urgent-sort ordering, so staff see it.
+  board by reusing the existing urgent-sort ordering, with a **"Cancelled"**
+  button (→ `POST …/cancel`) the secretary clicks after releasing the slot.
+- `cancelled` → "Cancelled" (grey); removed from the active board (treated like
+  `done` for board placement).
 
 Escalation/handoff cards show no confirmation controls.
 
 ### 5. Confirmation page — `templates/confirm.html`
 
 Standalone minimal page (no clinic nav, no login), bilingual (Danish +
-English), with distinct success / expired / invalid / already-confirmed states.
+English), showing an appointment summary and a single **Confirm** button, with
+distinct success / expired / invalid / already-confirmed / cancelled states. The
+template is structured so additional input fields could be added later without
+rework; none are collected for the demo.
 
 ## Data flow
 
@@ -160,9 +198,13 @@ Secretary reloads inbox
 - **Double click / re-click after confirm:** `already_confirmed` page (idempotent;
   does not error).
 - **Click after 48h:** `expired` page; the inbox already shows it as expired.
+- **Click after cancel:** `cancelled` page (the secretary already closed it out).
 - **Re-booking:** calling `book` again on a `pending`/`expired` case regenerates
   the token and resets the 48h window (lets staff re-send). Confirmed cases are
   left as-is unless explicitly re-opened (out of scope for the demo).
+- **Phone enforcement:** because phone is now required by `complete_triage`, the
+  "no phone on file" case should not arise for new bookings; the `book` guard
+  remains as defence-in-depth for older/edge records.
 
 ## Testing
 
@@ -176,9 +218,14 @@ the repo has no pytest harness. Add a small **standalone verification script**
 3. Second `confirm_by_token(token)` → `already_confirmed`.
 4. Expiry: a `pending` row with `sent_at` older than the TTL reads as `expired`
    and `confirm_by_token` returns `expired`.
-5. Unknown token → `invalid`.
+5. `cancel_booking` on an expired row → `cancelled`; `confirm_by_token` then
+   returns `cancelled`.
+6. Unknown token → `invalid`.
 
-Plus a manual click-through of `/confirm/{token}` covering success/expired/invalid.
+Phone enforcement is verified through the existing war games (the patient
+simulator always supplies a phone, and `complete_triage` now rejects an empty
+one). Plus a manual click-through of `/confirm/{token}` covering
+success/expired/invalid/cancelled.
 
 ## Out of scope (demo)
 
@@ -195,4 +242,6 @@ Plus a manual click-through of `/confirm/{token}` covering success/expired/inval
   `docs/superpowers/specs/2026-06-24-booking-confirmation-design.md`.
 - Modified: `triage/session_store.py`, `triage/api.py`,
   `static/js/inbox-board.js`, `templates/inbox.html`, `static/css/style.css`,
+  `triage/tools.py` (phone-required gate in `complete_triage`),
+  `triage/agents.py` (prompt: phone mandatory),
   `.env.example` (or docs) for new env vars, `CLAUDE.md` (document the flow).
