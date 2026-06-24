@@ -15,6 +15,11 @@ load_dotenv(PROJECT_DIR / ".env")
 
 MODEL = os.getenv("TRIAGE_MODEL", "gpt-5.4")
 
+# Booking-confirmation settings
+SMS_PROVIDER = os.getenv("SMS_PROVIDER", "console")
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "http://localhost:8000")
+CONFIRMATION_TTL_HOURS = int(os.getenv("CONFIRMATION_TTL_HOURS", "48"))
+
 # =============================================================================
 # Load YAML Config (mutable — supports runtime reload)
 # =============================================================================
