@@ -92,6 +92,97 @@ def test_validator_still_rejects_empty_cpr():
 
 
 # ---------------------------------------------------------------------------
+# Task 3 — SessionStore confirmation lifecycle
+# ---------------------------------------------------------------------------
+
+def _store():
+    from triage.session_store import SessionStore
+    d = tempfile.mkdtemp()
+    return SessionStore(Path(d) / "dash.db")
+
+
+def _seed_booking(store, sid="s1", phone="12345678", result_type="booking"):
+    store.create_session(sid)
+    store.update_session(sid, status="completed", result_type=result_type, patient_name="Test")
+    store.save_result(sid, json.dumps({"triage": {"phone_number": phone, "patient_name": "Test"}}))
+
+
+@test
+def test_mark_booked_sets_pending_and_returns_phone():
+    s = _store(); _seed_booking(s)
+    res = s.mark_booked("s1")
+    assert res["ok"] and res["token"] and res["phone"] == "12345678", res
+    assert s.get_session("s1")["confirmation"] == "pending"
+
+
+@test
+def test_mark_booked_rejects_no_phone():
+    s = _store(); _seed_booking(s, phone=None)
+    res = s.mark_booked("s1")
+    assert not res["ok"] and res["error"] == "no phone on file", res
+
+
+@test
+def test_mark_booked_rejects_non_booking():
+    s = _store(); _seed_booking(s, result_type="handoff")
+    res = s.mark_booked("s1")
+    assert not res["ok"] and res["error"] == "not a booking", res
+
+
+@test
+def test_confirm_by_token_happy_path():
+    s = _store(); _seed_booking(s)
+    tok = s.mark_booked("s1")["token"]
+    assert s.confirm_by_token(tok)["status"] == "confirmed"
+    assert s.get_session("s1")["confirmation"] == "confirmed"
+
+
+@test
+def test_confirm_twice_is_already_confirmed():
+    s = _store(); _seed_booking(s)
+    tok = s.mark_booked("s1")["token"]
+    s.confirm_by_token(tok)
+    assert s.confirm_by_token(tok)["status"] == "already_confirmed"
+
+
+@test
+def test_confirm_unknown_token_is_invalid():
+    s = _store()
+    assert s.confirm_by_token("nope")["status"] == "invalid"
+
+
+@test
+def test_expiry_derived_and_confirm_returns_expired():
+    from triage.config import CONFIRMATION_TTL_HOURS
+    s = _store(); _seed_booking(s)
+    tok = s.mark_booked("s1")["token"]
+    old = (datetime.now(timezone.utc) - timedelta(hours=CONFIRMATION_TTL_HOURS + 1)).isoformat()
+    with sqlite3.connect(s.db_path) as c:
+        c.execute("UPDATE sessions SET confirmation_sent_at=? WHERE session_id='s1'", (old,))
+        c.commit()
+    assert s.get_session("s1")["confirmation"] == "expired"
+    assert s.confirm_by_token(tok)["status"] == "expired"
+
+
+@test
+def test_cancel_booking_sets_cancelled():
+    s = _store(); _seed_booking(s)
+    s.mark_booked("s1")
+    res = s.cancel_booking("s1")
+    assert res["ok"] and res["status"] == "cancelled", res
+    assert s.get_session("s1")["confirmation"] == "cancelled"
+
+
+@test
+def test_list_inbox_exposes_confirmation():
+    s = _store(); _seed_booking(s)
+    s.mark_booked("s1")
+    row = next(r for r in s.list_inbox() if r["session_id"] == "s1")
+    assert row["confirmation"] == "pending"
+    assert row["confirmation_hours_left"] is not None
+
+
+# ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
 

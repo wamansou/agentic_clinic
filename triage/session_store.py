@@ -1,11 +1,46 @@
 """SQLite session metadata store for the dashboard history view."""
 
 import json
+import secrets
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+from triage.config import CONFIRMATION_TTL_HOURS
 from triage.models import SessionMeta
+
+
+def effective_confirmation_status(row: dict, now: datetime | None = None) -> str:
+    """Derive 'expired' from a pending row past the TTL; otherwise the stored status.
+    A NULL/absent stored value is treated as 'none'."""
+    status = row.get("confirmation_status") or "none"
+    if status == "pending":
+        sent = row.get("confirmation_sent_at")
+        if sent:
+            now = now or datetime.now(timezone.utc)
+            try:
+                sent_dt = datetime.fromisoformat(sent)
+            except ValueError:
+                return status
+            if now - sent_dt > timedelta(hours=CONFIRMATION_TTL_HOURS):
+                return "expired"
+    return status
+
+
+def confirmation_hours_left(row: dict, now: datetime | None = None) -> float | None:
+    """Hours remaining in the window for a pending row; None otherwise."""
+    if (row.get("confirmation_status") or "none") != "pending":
+        return None
+    sent = row.get("confirmation_sent_at")
+    if not sent:
+        return None
+    now = now or datetime.now(timezone.utc)
+    try:
+        sent_dt = datetime.fromisoformat(sent)
+    except ValueError:
+        return None
+    remaining = timedelta(hours=CONFIRMATION_TTL_HOURS) - (now - sent_dt)
+    return max(0.0, remaining.total_seconds() / 3600.0)
 
 
 class SessionStore:
@@ -52,6 +87,11 @@ class SessionStore:
             "processed_by": "TEXT",
             "processing_updated_at": "TEXT",
             "urgency": "TEXT",
+            "confirmation_status": "TEXT DEFAULT 'none'",
+            "confirmation_token": "TEXT",
+            "confirmation_sent_at": "TEXT",
+            "confirmation_confirmed_at": "TEXT",
+            "confirmation_cancelled_at": "TEXT",
         }
         for col, decl in migrations.items():
             if col not in existing:
@@ -107,7 +147,10 @@ class SessionStore:
             ).fetchone()
         if row is None:
             return None
-        return dict(row)
+        result = dict(row)
+        result["confirmation"] = effective_confirmation_status(result)
+        result["confirmation_hours_left"] = confirmation_hours_left(result)
+        return result
 
     def list_sessions(self, limit: int = 50) -> list[dict]:
         with sqlite3.connect(self.db_path) as conn:
@@ -127,7 +170,8 @@ class SessionStore:
             rows = conn.execute(
                 "SELECT session_id, created_at, patient_name, status, condition_name, "
                 "result_type, processing_status, processed_by, processing_updated_at, urgency, "
-                "result_json "
+                "confirmation_status, confirmation_sent_at, confirmation_confirmed_at, "
+                "confirmation_cancelled_at, result_json "
                 "FROM sessions WHERE status IN ('completed', 'escalated') "
                 "ORDER BY CASE urgency "
                 "  WHEN 'immediate' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END, "
@@ -149,6 +193,8 @@ class SessionStore:
             row["phone"] = phone
             row["cpr"] = cpr
             row["doctor"] = doctor
+            row["confirmation"] = effective_confirmation_status(row)
+            row["confirmation_hours_left"] = confirmation_hours_left(row)
             enriched.append(row)
         return enriched
 
@@ -186,6 +232,84 @@ class SessionStore:
                 (result_json, session_id),
             )
             conn.commit()
+
+    def mark_booked(self, session_id: str) -> dict:
+        """Generate a confirmation token, set status=pending, sent_at=now.
+        Returns {ok, token, phone} or {ok: False, error}."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT result_type, result_json FROM sessions WHERE session_id = ?",
+                (session_id,),
+            ).fetchone()
+            if row is None:
+                return {"ok": False, "error": "not found"}
+            if (row["result_type"] or "") != "booking":
+                return {"ok": False, "error": "not a booking"}
+            phone = None
+            if row["result_json"]:
+                try:
+                    triage = (json.loads(row["result_json"]) or {}).get("triage") or {}
+                    phone = triage.get("phone_number")
+                except (json.JSONDecodeError, TypeError, AttributeError):
+                    phone = None
+            if not phone:
+                return {"ok": False, "error": "no phone on file"}
+            token = secrets.token_urlsafe(24)
+            now = datetime.now(timezone.utc).isoformat()
+            conn.execute(
+                "UPDATE sessions SET confirmation_status='pending', confirmation_token=?, "
+                "confirmation_sent_at=?, confirmation_confirmed_at=NULL, "
+                "confirmation_cancelled_at=NULL WHERE session_id=?",
+                (token, now, session_id),
+            )
+            conn.commit()
+        return {"ok": True, "token": token, "phone": phone}
+
+    def confirm_by_token(self, token: str) -> dict:
+        """Patient confirms via token. Returns
+        {status: confirmed|expired|already_confirmed|cancelled|invalid, session_id?}."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT * FROM sessions WHERE confirmation_token = ?", (token,)
+            ).fetchone()
+            if row is None:
+                return {"status": "invalid"}
+            d = dict(row)
+            stored = d.get("confirmation_status") or "none"
+            if stored == "confirmed":
+                return {"status": "already_confirmed", "session_id": d["session_id"]}
+            if stored == "cancelled":
+                return {"status": "cancelled", "session_id": d["session_id"]}
+            if effective_confirmation_status(d) == "expired":
+                return {"status": "expired", "session_id": d["session_id"]}
+            now = datetime.now(timezone.utc).isoformat()
+            conn.execute(
+                "UPDATE sessions SET confirmation_status='confirmed', "
+                "confirmation_confirmed_at=? WHERE session_id=?",
+                (now, d["session_id"]),
+            )
+            conn.commit()
+            return {"status": "confirmed", "session_id": d["session_id"]}
+
+    def cancel_booking(self, session_id: str) -> dict:
+        """Secretary marks a booking cancelled (record-keeping; external slot
+        release is manual). Returns {ok, status} or {ok: False, error}."""
+        with sqlite3.connect(self.db_path) as conn:
+            row = conn.execute(
+                "SELECT session_id FROM sessions WHERE session_id = ?", (session_id,)
+            ).fetchone()
+            if row is None:
+                return {"ok": False, "error": "not found"}
+            now = datetime.now(timezone.utc).isoformat()
+            conn.execute(
+                "UPDATE sessions SET confirmation_status='cancelled', "
+                "confirmation_cancelled_at=? WHERE session_id=?",
+                (now, session_id),
+            )
+            conn.commit()
+        return {"ok": True, "status": "cancelled"}
 
     def get_result(self, session_id: str) -> dict | None:
         with sqlite3.connect(self.db_path) as conn:
