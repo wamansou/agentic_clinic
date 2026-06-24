@@ -49,6 +49,49 @@ def test_get_sms_sender_defaults_to_console():
 
 
 # ---------------------------------------------------------------------------
+# Task 2 — phone-required validation
+# ---------------------------------------------------------------------------
+
+def _booking_data(**kw):
+    from triage.models import TriageData
+    base = dict(
+        condition_id=42, doctor="HS", has_referral=True,
+        cpr_number="010190-1234", phone_number="12345678",
+    )
+    base.update(kw)
+    return TriageData(**base)
+
+
+@test
+def test_validator_ok_for_complete_booking():
+    from triage.tools import validate_triage_completion
+    assert validate_triage_completion(_booking_data()) is None
+
+
+@test
+def test_validator_rejects_empty_phone():
+    from triage.tools import validate_triage_completion
+    err = validate_triage_completion(_booking_data(phone_number=None))
+    assert err and "phone_number is required" in err, err
+
+
+@test
+def test_validator_rejects_empty_phone_on_escalation():
+    from triage.tools import validate_triage_completion
+    err = validate_triage_completion(
+        _booking_data(escalate=True, phone_number=None, condition_id=None, doctor=None)
+    )
+    assert err and "phone_number is required" in err, err
+
+
+@test
+def test_validator_still_rejects_empty_cpr():
+    from triage.tools import validate_triage_completion
+    err = validate_triage_completion(_booking_data(cpr_number=None))
+    assert err and "cpr_number is required" in err, err
+
+
+# ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
 

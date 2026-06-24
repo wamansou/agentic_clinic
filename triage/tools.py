@@ -180,10 +180,8 @@ def fetch_condition_details(condition_id: int) -> str:
         return result
 
 
-@function_tool
-def complete_triage(data: TriageData) -> str:
-    """Call this when you have collected all required information from the patient.
-    Fill in ALL fields you have gathered. For escalations, set escalate=true and provide escalation_reason."""
+def validate_triage_completion(data: TriageData) -> str | None:
+    """Pure validation for complete_triage. Returns an ERROR string, or None if OK."""
     # CPR is required for EVERY case (booking and escalation) so staff don't have to call back.
     if not data.cpr_number:
         return (
@@ -193,6 +191,15 @@ def complete_triage(data: TriageData) -> str:
             "If the patient explicitly refuses or genuinely cannot provide it (or is a "
             "distressed Category A emergency), set cpr_number=\"declined\" so staff can "
             "follow up. Do NOT call complete_triage with an empty cpr_number."
+        )
+    # Phone is required for EVERY case — it is the SMS target for the booking confirmation.
+    if not data.phone_number:
+        return (
+            "ERROR: phone_number is required for ALL cases. You MUST ask the patient for "
+            "a mobile number we can reach them on (used to send the booking confirmation "
+            "SMS): \"What is the best mobile number to reach you on?\" / "
+            "\"Hvilket mobilnummer kan vi bedst kontakte dig på?\". Store it in "
+            "phone_number. Do NOT call complete_triage with an empty phone_number."
         )
     if not data.escalate:
         if data.condition_id is None:
@@ -223,6 +230,16 @@ def complete_triage(data: TriageData) -> str:
                 "\"Do you have public health insurance (det gule sygesikringskort)?\" "
                 "Set insurance_type=\"public\" or insurance_type=\"dss\"."
             )
+    return None
+
+
+@function_tool
+def complete_triage(data: TriageData) -> str:
+    """Call this when you have collected all required information from the patient.
+    Fill in ALL fields you have gathered. For escalations, set escalate=true and provide escalation_reason."""
+    error = validate_triage_completion(data)
+    if error:
+        return error
     return data.model_dump_json()
 
 
