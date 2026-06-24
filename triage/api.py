@@ -13,6 +13,7 @@ from triage.config import PROJECT_DIR, DB_DIR, get_conditions, reload_conditions
 from triage.auth import login_required, handle_login, handle_logout, get_current_user
 from triage.session_store import SessionStore
 from triage.orchestrator import run_agent_turn
+from triage.notifications import get_sms_sender, build_confirmation_message, build_confirmation_url
 
 
 # =============================================================================
@@ -242,6 +243,47 @@ async def api_set_processing(session_id: str, request: Request):
     if updated is None:
         return JSONResponse({"error": "not found"}, status_code=404)
     return updated
+
+
+# =============================================================================
+# Booking confirmation
+# =============================================================================
+
+@app.post("/api/sessions/{session_id}/book")
+async def api_book(session_id: str):
+    from fastapi.responses import JSONResponse
+    res = store.mark_booked(session_id)
+    if not res.get("ok"):
+        return JSONResponse({"error": res.get("error", "could not book")}, status_code=400)
+    result = store.get_result(session_id) or {}
+    lang = (result.get("triage") or {}).get("language") or "da"
+    body = build_confirmation_message(res["token"], lang)
+    get_sms_sender().send(res["phone"], body)
+    return {"ok": True, "confirmation": "pending", "confirm_url": build_confirmation_url(res["token"])}
+
+
+@app.post("/api/sessions/{session_id}/cancel")
+async def api_cancel(session_id: str):
+    from fastapi.responses import JSONResponse
+    res = store.cancel_booking(session_id)
+    if not res.get("ok"):
+        return JSONResponse({"error": res.get("error", "could not cancel")}, status_code=400)
+    return {"ok": True, "confirmation": "cancelled"}
+
+
+@app.get("/confirm/{token}", response_class=HTMLResponse)
+async def confirm_get(request: Request, token: str):
+    return templates.TemplateResponse(
+        "confirm.html", {"request": request, "token": token, "state": "prompt"}
+    )
+
+
+@app.post("/confirm/{token}", response_class=HTMLResponse)
+async def confirm_post(request: Request, token: str):
+    res = store.confirm_by_token(token)
+    return templates.TemplateResponse(
+        "confirm.html", {"request": request, "token": token, "state": res["status"]}
+    )
 
 
 # =============================================================================

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bekræft aftale / Confirm appointment</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; background:#f4f6f8; margin:0; color:#1f2933; }
+    .card { max-width:440px; margin:8vh auto; background:#fff; border-radius:14px; padding:32px;
+            box-shadow:0 6px 24px rgba(0,0,0,.08); text-align:center; }
+    h1 { font-size:1.3rem; margin:0 0 8px; }
+    p { line-height:1.5; color:#52606d; }
+    .btn { display:inline-block; margin-top:18px; background:#2563eb; color:#fff; border:none;
+           border-radius:8px; padding:14px 28px; font-size:1rem; cursor:pointer; }
+    .btn:hover { background:#1d4ed8; }
+    .ok { color:#15803d; } .warn { color:#b45309; } .err { color:#b91c1c; }
+    .sub { font-size:.85rem; color:#9aa5b1; margin-top:20px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    {% if state == 'prompt' %}
+      <h1>Bekræft din aftale</h1>
+      <p>Klik på knappen for at bekræfte din aftale hos Gynækologerne Skensved og Bune.</p>
+      <p><em>Click below to confirm your appointment.</em></p>
+      <form method="post" action="/confirm/{{ token }}">
+        <button class="btn" type="submit">Bekræft / Confirm</button>
+      </form>
+    {% elif state == 'confirmed' %}
+      <h1 class="ok">✓ Bekræftet / Confirmed</h1>
+      <p>Tak! Din aftale er bekræftet.</p>
+      <p><em>Thank you! Your appointment is confirmed.</em></p>
+    {% elif state == 'already_confirmed' %}
+      <h1 class="ok">✓ Allerede bekræftet / Already confirmed</h1>
+      <p>Din aftale er allerede bekræftet.</p>
+      <p><em>Your appointment was already confirmed.</em></p>
+    {% elif state == 'expired' %}
+      <h1 class="warn">Linket er udløbet / Link expired</h1>
+      <p>Bekræftelsesfristen er overskredet. Klinikken kontakter dig.</p>
+      <p><em>The confirmation window has passed. The clinic will contact you.</em></p>
+    {% elif state == 'cancelled' %}
+      <h1 class="err">Aftale annulleret / Appointment cancelled</h1>
+      <p>Denne aftale er annulleret. Kontakt klinikken ved spørgsmål.</p>
+      <p><em>This appointment has been cancelled. Please contact the clinic.</em></p>
+    {% else %}
+      <h1 class="err">Ugyldigt link / Invalid link</h1>
+      <p>Dette bekræftelseslink er ugyldigt.</p>
+      <p><em>This confirmation link is not valid.</em></p>
+    {% endif %}
+    <div class="sub">Gynækologerne Skensved og Bune</div>
+  </div>
+</body>
+</html>
